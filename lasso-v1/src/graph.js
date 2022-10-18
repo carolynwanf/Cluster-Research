@@ -1,6 +1,8 @@
 import data from "./states.csv";
 import * as d3 from "d3";
 
+let database = {};
+
 function drawGraph() {
   var margin = { top: 20, right: 0, bottom: 50, left: 85 },
     svg_dx = 500,
@@ -19,6 +21,9 @@ function drawGraph() {
   console.log(svg);
   // drawing graph with info
   d3.csv(data).then((d) => {
+    for (let state of d) {
+      database[state.state] = state;
+    }
     var n = d.length;
     console.log(d, n);
     var d_extent_x = d3.extent(d, (d) => +d.income),
@@ -59,8 +64,16 @@ function drawGraph() {
       .enter()
       .append("circle")
       .attr("r", 5)
-      .attr("cx", (d) => x(+d.income))
-      .attr("cy", (d) => y(+d.hs_grad))
+      .attr("cx", (d) => {
+        let centerX = x(+d.income);
+        database[d.state].cx = centerX;
+        return centerX;
+      })
+      .attr("cy", (d) => {
+        let centerY = y(+d.hs_grad);
+        database[d.state].cy = centerY;
+        return centerY;
+      })
       .attr("class", "non-brushed")
       .attr("id", (d) => d.state.replace(/\s+/g, ""));
 
@@ -72,41 +85,31 @@ function checkPoints() {
   console.log(document.getElementsByClassName("non-brushed").length);
   var path = document.getElementById("lasso");
   let svg = document.getElementsByTagName("svg")[0];
-  var svgd3 = d3.select("svg");
-  d3.csv(data).then((d) => {
-    for (let datum of d) {
-      // Get position of point
-      let id = datum.state.replace(/\s+/g, "");
-      let state = document.getElementById(id);
-      //   let rect = state.getBoundingClientRect();
-      //   let offset = svg.getBoundingClientRect();
 
-      //   let newY = rect.top - offset.top + 5;
-      //   let newX = rect.left - offset.left + 5;
+  for (let [state, stateInfo] of Object.entries(database)) {
+    // console.log(state, stateInfo);
+    const point = svg.createSVGPoint();
 
-      const point = svg.createSVGPoint();
+    point.x = stateInfo.cx;
+    point.y = stateInfo.cy;
 
-      point.x = state.cx.baseVal.value;
-      point.y = state.cy.baseVal.value;
-      console.log("coordinates", state.cx);
+    // Check if point is in path
+    if (path.isPointInFill(point)) {
+      // Change class and recolor points accordingly
+      let id = state.replace(/\s+/g, "");
+      let selector = "#" + id;
+      d3.selectAll(selector)
+        .attr("class", "brushed")
+        .attr("fill", (d, i, elements) => {
+          let color = "black";
+          if (d3.select(elements[i]).attr("class") === "brushed") {
+            color = "red";
+          }
 
-      // Check if point is in path
-      if (path.isPointInFill(point)) {
-        // Change class and recolor points accordingly
-        let selector = "#" + id;
-        d3.selectAll(selector)
-          .attr("class", "brushed")
-          .attr("fill", (d, i, elements) => {
-            let color = "black";
-            if (d3.select(elements[i]).attr("class") === "brushed") {
-              color = "red";
-            }
-
-            return color;
-          });
-      }
+          return color;
+        });
     }
-  });
+  }
 }
 
 function reset() {
