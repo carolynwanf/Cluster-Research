@@ -1,15 +1,16 @@
-import data from "./states.csv";
+import data from "./statesSmall.csv";
 import * as d3 from "d3";
 
 // Storing state location data for quicker access
 let database = {};
 
 // Function to draw graph, called once at render time
-function drawGraph() {
+function drawGraph(width, height) {
+  console.log(width, height);
   // Location var
   var margin = { top: 20, right: 0, bottom: 50, left: 85 },
-    svg_dx = 500,
-    svg_dy = 400,
+    svg_dx = width,
+    svg_dy = height,
     plot_dx = svg_dx - margin.right - margin.left,
     plot_dy = svg_dy - margin.top - margin.bottom;
 
@@ -62,6 +63,7 @@ function checkPoints() {
   console.log(document.getElementsByClassName("non-brushed").length);
   var path = document.getElementById("lasso");
   let svg = document.getElementsByTagName("svg")[0];
+  let brushedPoints = [];
 
   console.log(path);
   // d3.polygonContains(lassoPolygon, [x, y]);
@@ -72,6 +74,7 @@ function checkPoints() {
     point.y = stateInfo.cy;
     // Check if point is in path
     if (path.isPointInFill(point)) {
+      brushedPoints.push(stateInfo);
       // Change class and recolor points accordingly
       let id = state.replace(/\s+/g, "");
       let selector = "#" + id;
@@ -87,6 +90,7 @@ function checkPoints() {
         });
     }
   }
+  return brushedPoints;
 }
 
 // Re-color formerly brushed circles

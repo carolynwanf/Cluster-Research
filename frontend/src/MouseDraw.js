@@ -8,6 +8,8 @@ import React, {
 import * as d3 from "d3";
 import { drawGraph, checkPoints, reset } from "./graph.js";
 import "./App.css";
+import { RightPanel } from "./RightPanel.js";
+import { LeftPanel } from "./LeftPanel.js";
 
 // Line element
 const Line = ({ points, drawing }) => {
@@ -45,6 +47,7 @@ export const MouseDraw = ({ x, y, width, height }) => {
   // States and state setters
   const [drawing, setDrawing] = useState(false);
   const [currentLine, setCurrentLine] = useState({ points: [] });
+  const [selectedPoints, setSelectedPoints] = useState([]);
 
   const drawingAreaRef = useRef();
 
@@ -66,12 +69,15 @@ export const MouseDraw = ({ x, y, width, height }) => {
   function enableDrawing() {
     reset();
     setCurrentLine({ points: [] });
+    setSelectedPoints([]);
     setDrawing(true);
   }
 
-  // Adds the new line to the array of lines, stops drawing
+  // Adds the new line to the array of lines, stops drawing on mouseup
   function disableDrawing() {
     setDrawing(false);
+    // Check if points are in path on mouseup
+    setSelectedPoints(checkPoints());
   }
 
   // Called mouseMove on mouseover of the drawing area
@@ -81,35 +87,34 @@ export const MouseDraw = ({ x, y, width, height }) => {
     return () => area.on("mousemove", null);
   }, [mouseMove]);
 
-  // Check if points are in path on mouseup
-  useEffect(() => {
-    const area = d3.select(drawingAreaRef.current);
-    area.on("mouseup", checkPoints);
-    return () => area.on("mouseup", null);
-  }, [checkPoints]);
-
   // Draw graph ONCE when the component mounts
   useEffect(() => {
     console.log("running effect");
-    drawGraph();
+    drawGraph(width, height);
   }, []);
 
   return (
-    <g
-      ref={drawingAreaRef}
-      onMouseDown={enableDrawing}
-      onMouseUp={disableDrawing}
-    >
-      {/* Drawing background, gives "g" its size */}
-      <rect
-        x={0}
-        y={0}
-        width={width}
-        height={height}
-        style={{ fill: "white" }}
-      />
-      {/* Renders lines */}
-      <Line points={currentLine.points} drawing={drawing} />
-    </g>
+    <div className="body">
+      <LeftPanel />
+      <svg id="containerSVG" width={width} height={height}>
+        <g
+          ref={drawingAreaRef}
+          onMouseDown={enableDrawing}
+          onMouseUp={disableDrawing}
+        >
+          {/* Drawing background, gives "g" its size */}
+          <rect
+            x={0}
+            y={0}
+            width={width}
+            height={height}
+            style={{ fill: "white" }}
+          />
+          {/* Renders lines */}
+          <Line points={currentLine.points} drawing={drawing} />
+        </g>
+      </svg>
+      <RightPanel points={selectedPoints} />
+    </div>
   );
 };
