@@ -95,24 +95,21 @@ export const MouseDraw = ({ x, y, width, height }) => {
   }, []);
 
   return (
-    <svg>
-      <g
-        transform={`translate(${85 / 2}, ${20 / 2})`}
-        ref={drawingAreaRef}
-        onMouseDown={enableDrawing}
-        onMouseUp={disableDrawing}
-      >
-        {/* Drawing background, gives "g" its size */}
-        <rect
-          x={0}
-          y={0}
-          width={width - 85}
-          height={height - 50}
-          style={{ fill: "white" }}
-        />
-        {/* Renders lines */}
-        <Line points={currentLine.points} drawing={drawing} />
-      </g>
-    </svg>
+    <g
+      ref={drawingAreaRef}
+      onMouseDown={enableDrawing}
+      onMouseUp={disableDrawing}
+    >
+      {/* Drawing background, gives "g" its size */}
+      <rect
+        x={0}
+        y={0}
+        width={width}
+        height={height}
+        style={{ fill: "white" }}
+      />
+      {/* Renders lines */}
+      <Line points={currentLine.points} drawing={drawing} />
+    </g>
   );
 };
