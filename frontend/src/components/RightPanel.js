@@ -1,11 +1,11 @@
-import "./App.css";
-import { useState, useEffect } from "react";
+import "../App.css";
+import { useState } from "react";
 
-let selectedItems;
+// Analysis panel for displaying info
 export const RightPanel = ({ points }) => {
   const [selectedItems, setSelectedItems] = useState([]);
 
-  // Pick out selected items from points
+  // Update selected items if new items have been selected
   if (points.length > 0 && selectedItems.length === 0) {
     let newSelectedItems = [];
     let seenAlready = new Set();
@@ -20,22 +20,12 @@ export const RightPanel = ({ points }) => {
     }
 
     setSelectedItems(newSelectedItems);
+
+    // Update selected items if selection is cleared
   } else if (points.length === 0 && selectedItems.length > 0) {
     setSelectedItems([]);
   }
 
-  //   useEffect(() => {
-  //     if (points.length > 0) {
-  //       selectedItems = [];
-
-  //       for (let point of points) {
-  //         selectedItems.push(<li key={point.id}>{point.id}</li>);
-  //       }
-  //       console.log(selectedItems);
-  //     } else if (points.length === 0) {
-  //       selectedItems = [];
-  //     }
-  //   }, [selectedItems]);
   return (
     <div className="right panel">
       <p className="title">Analysis</p>

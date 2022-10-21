@@ -2,9 +2,9 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
 import React, { useEffect, useState } from "react";
 
-import { MouseDraw } from "./MouseDraw.js";
+import { MouseDraw } from "./components/MouseDraw.js";
 // import classNames from "classnames/bind";
-import { Header } from "./Navbar.js";
+import { Header } from "./components/Navbar.js";
 
 function App() {
   return (
