@@ -1,5 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, send_from_directory
 from flask_cors import CORS #comment this on deployment
+from flask_restful import reqparse
+import sys
 
 app = Flask(__name__, static_url_path='', static_folder='frontend/build')
 CORS(app)
@@ -12,8 +14,14 @@ def home():
 # Data uploading route
 @app.route("/upload-data", methods=["POST"])
 def data():
-    data = request.form.get("data")
-    print(data)
+    parser = reqparse.RequestParser()
+    parser.add_argument('data', type=str)
+
+    args = parser.parse_args()
+
+    data = args['data']
+    print(data, file=sys.stderr)
+
     return "done :)"
 
 # Run app in debug mode
