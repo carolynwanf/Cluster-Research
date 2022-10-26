@@ -3,11 +3,12 @@ import { useState } from "react";
 import Button from "react-bootstrap/Button";
 import axios from "axios";
 import Form from "react-bootstrap/Form";
+import { drawGraph, clearSVG } from "../graph.js";
 
 const localDevURL = "http://127.0.0.1:5000/";
 
 // Data upload + control panel
-export const LeftPanel = () => {
+export const LeftPanel = ({ width, height }) => {
   const [file, setFile] = useState();
 
   // File reader
@@ -30,7 +31,10 @@ export const LeftPanel = () => {
             data: csvOutput,
           })
           .then((response) => {
-            console.log("SUCCESS", response);
+            console.log("SUCCESS", response.data.data);
+            let dataToPlot = response.data.data;
+            clearSVG();
+            drawGraph(width, height, dataToPlot);
           })
           .catch((error) => {
             console.log(error);
@@ -41,8 +45,6 @@ export const LeftPanel = () => {
     }
   };
 
-  // Function for getting data from the backend :)
-  function connectToBackend() {}
   return (
     <div className="left panel">
       <p className="title">Data</p>

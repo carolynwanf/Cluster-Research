@@ -90,12 +90,12 @@ export const MouseDraw = ({ x, y, width, height }) => {
   // Draw graph ONCE when the component mounts
   useEffect(() => {
     console.log("running effect");
-    drawGraph(width, height);
+    drawGraph(width, height, []);
   }, []);
 
   return (
     <div className="body">
-      <LeftPanel />
+      <LeftPanel width={width} height={height} />
       <svg id="containerSVG" width={width} height={height}>
         <g
           ref={drawingAreaRef}

@@ -11,11 +11,11 @@ export const RightPanel = ({ points }) => {
     let seenAlready = new Set();
 
     for (let point of points) {
-      if (seenAlready.has(point.state)) {
+      if (seenAlready.has(point.label)) {
         continue;
       } else {
-        newSelectedItems.push(<li key={point.state}>{point.state}</li>);
-        seenAlready.add(point.state);
+        newSelectedItems.push(<li key={point.label}>{point.label}</li>);
+        seenAlready.add(point.label);
       }
     }
 
