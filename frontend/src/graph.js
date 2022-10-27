@@ -1,7 +1,7 @@
 import * as d3 from "d3";
 
 let data = [
-  ["x", "y", "label"][(3615, 3624, "Alabama")],
+  [(3615, 3624, "Alabama")],
   [365, 6315, "Alaska"],
   [2212, 4530, "Arizona"],
   [2110, 3378, "Arkansas"],
@@ -75,7 +75,8 @@ function drawGraph(width, height, dataFromFront) {
     .data(d)
     .enter()
     .append("circle")
-    .attr("r", 5)
+    .attr("r", 3)
+    .attr("opacity", 0.5)
     .attr("cx", (d) => {
       let centerX = x(+d[0]);
       database[d[2]].cx = centerX;
@@ -87,7 +88,10 @@ function drawGraph(width, height, dataFromFront) {
       return centerY;
     })
     .attr("class", "non-brushed")
-    .attr("id", (d) => d[2].replace(/\s+/g, ""));
+    .attr("id", (d) => {
+      let id = d[2].replace(/\s+/g, "");
+      id = id;
+    });
 
   svg.append("g");
   console.log(database);
@@ -99,7 +103,7 @@ function checkPoints() {
   var path = document.getElementById("lasso");
   let svg = document.getElementsByTagName("svg")[0];
   let brushedPoints = [];
-
+  console.log(database);
   console.log(path);
   // d3.polygonContains(lassoPolygon, [x, y]);
   for (let [label, labelInfo] of Object.entries(database)) {
