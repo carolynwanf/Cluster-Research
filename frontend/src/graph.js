@@ -1,7 +1,7 @@
 import * as d3 from "d3";
 
-let data = [
-  [(3615, 3624, "Alabama")],
+let defaultData = [
+  [3615, 3624, "Alabama"],
   [365, 6315, "Alaska"],
   [2212, 4530, "Arizona"],
   [2110, 3378, "Arkansas"],
@@ -50,15 +50,12 @@ function drawGraph(width, height, dataFromFront) {
   var svg = d3.select("#containerSVG");
 
   // drawing graph with info
-  data.shift();
-  let d = data;
-  console.log("d", d);
-  if (dataFromFront.length > 0) {
-    d = dataFromFront;
-  }
+  let d = defaultData;
 
-  for (let [x, y, label] of d) {
-    database[label] = { label: label };
+  // Re-setting database and using uploaded data to draw if data base been uploaded
+  if (dataFromFront.length > 0) {
+    database = {};
+    d = dataFromFront;
   }
 
   var d_extent_x = d3.extent(d, (d) => +d[0]),
@@ -67,6 +64,11 @@ function drawGraph(width, height, dataFromFront) {
   // Draw axes
   x.domain(d_extent_x);
   y.domain(d_extent_y);
+
+  // Generate IDs for points
+  for (let row of d) {
+    row.push(makeid(10));
+  }
 
   // Draw circles
   var circles = svg
@@ -77,21 +79,22 @@ function drawGraph(width, height, dataFromFront) {
     .append("circle")
     .attr("r", 3)
     .attr("opacity", 0.5)
+    .attr("id", (d) => {
+      let id = d[3];
+      database[id] = { label: d[2] };
+      return id;
+    })
     .attr("cx", (d) => {
       let centerX = x(+d[0]);
-      database[d[2]].cx = centerX;
+      database[d[3]].cx = centerX;
       return centerX;
     })
     .attr("cy", (d) => {
       let centerY = y(+d[1]);
-      database[d[2]].cy = centerY;
+      database[d[3]].cy = centerY;
       return centerY;
     })
-    .attr("class", "non-brushed")
-    .attr("id", (d) => {
-      let id = d[2].replace(/\s+/g, "");
-      id = id;
-    });
+    .attr("class", "non-brushed");
 
   svg.append("g");
   console.log(database);
@@ -115,8 +118,7 @@ function checkPoints() {
     if (path.isPointInFill(point)) {
       brushedPoints.push(labelInfo);
       // Change class and recolor points accordingly
-      let id = label.replace(/\s+/g, "");
-      let selector = "#" + id;
+      let selector = "#" + label;
       d3.selectAll(selector)
         .attr("class", "brushed")
         .attr("fill", (d, i, elements) => {
@@ -135,6 +137,17 @@ function checkPoints() {
 // Re-color formerly brushed circles
 function reset() {
   d3.selectAll(".brushed").attr("class", "non-brushed").attr("fill", "black");
+}
+
+// Make random id strings
+function makeid(length) {
+  var result = "";
+  var characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+  var charactersLength = characters.length;
+  for (var i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  }
+  return result;
 }
 
 export { drawGraph, checkPoints, reset, clearSVG };
