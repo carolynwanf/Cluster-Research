@@ -110,7 +110,7 @@ export const LeftPanel = ({ width, height }) => {
         className="mb-3"
       >
         <Tab eventKey="TSNE" title="T-SNE">
-          <div class="sliderBlock">
+          <div className="sliderBlock">
             <p>Perlexity</p>
             <Slider
               aria-label="perplexity"
@@ -119,7 +119,7 @@ export const LeftPanel = ({ width, height }) => {
               min={0}
               max={100}
             />
-            <p class="paramValue">{perplexity}</p>
+            <p className="paramValue">{perplexity}</p>
           </div>
         </Tab>
         <Tab eventKey="UMAP" title="UMAP"></Tab>
@@ -135,7 +135,7 @@ export const LeftPanel = ({ width, height }) => {
       </Button>
       <hr />
       <p className="title"> Display settings</p>
-      <div class="sliderBlock">
+      <div className="sliderBlock">
         <p>Opacity</p>
         <Slider
           aria-label="opacity"
@@ -146,7 +146,7 @@ export const LeftPanel = ({ width, height }) => {
           min={0}
           max={100}
         />
-        <p class="paramValue">{opacity}</p>
+        <p className="paramValue">{opacity}</p>
       </div>
     </div>
   );

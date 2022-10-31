@@ -166,6 +166,7 @@ path {
   stroke:blue;
 }
 
+/* Slider formatting */
 .sliderBlock {
   display:flex;
   padding: 0.5em;
@@ -182,6 +183,15 @@ div.sliderBlock p.paramValue {
 
 div.sliderBlock Slider{
   width:50%;
+}
+
+/* table formatting */
+th {
+  font-weight:500;
+}
+
+Table {
+  background-color: white;
 }
 
 
