@@ -139,7 +139,7 @@ body {
 
 /* Left panel */
 .panel {
-  background-color: rgb(231, 231, 231);
+  background-color: rgb(241, 241, 241);
   border: 1px solid rgb(164, 164, 164);
   width: 320px;
   height: 100vh;
@@ -164,6 +164,24 @@ html, body {margin: 0; height: 100%; overflow: hidden}
 /* Lasso */
 path {
   stroke:blue;
+}
+
+.sliderBlock {
+  display:flex;
+  padding: 0.5em;
+  justify-content: space-between;
+}
+
+div.sliderBlock p {
+  padding: 0 0.5em 0 0;
+}
+
+div.sliderBlock p.paramValue {
+  padding: 0 0 0 0.5em;
+}
+
+div.sliderBlock Slider{
+  width:50%;
 }
 
 

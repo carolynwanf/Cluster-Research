@@ -24,6 +24,7 @@ def data():
     args = parser.parse_args()
 
     data = args['data']
+    reductionMethod = args['reductionMethod']
 
     #df has text as metadata and other features 
     df = pd.read_csv(io.StringIO(data),sep=",", header=0)
@@ -38,7 +39,7 @@ def data():
     df_tsne['label'] = df['text']
 
     print(df_tsne, file=sys.stderr)
-    df_tsne.to_json('./frontend/data/default_data.json', orient="split")
+    # df_tsne.to_json('./frontend/data/default_data.json', orient="split")
     return df_tsne.to_json(orient="split")
 
 @app.route("/get-default-data", methods=["GET"])

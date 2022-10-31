@@ -1,28 +1,5 @@
 import * as d3 from "d3";
 
-let defaultData = [
-  [3615, 3624, "Alabama"],
-  [365, 6315, "Alaska"],
-  [2212, 4530, "Arizona"],
-  [2110, 3378, "Arkansas"],
-  [21198, 5114, "California"],
-  [2541, 4884, "Colorado"],
-  [3100, 5348, "Connecticut"],
-  [579, 4809, "Delaware"],
-  [8277, 4815, "Florida"],
-  [4931, 4091, "Georgia"],
-  [868, 4963, "Hawaii"],
-  [813, 4119, "Idaho"],
-  [11197, 5107, "Illinois"],
-  [5313, 4458, "Indiana"],
-  [2861, 4628, "Iowa"],
-  [2280, 4669, "Kansas"],
-  [3387, 3712, "Kentucky"],
-  [3806, 3545, "Louisiana"],
-  [1058, 3694, "Maine"],
-  [4122, 5299, "Maryland"],
-];
-
 // Storing state location data for quicker access
 let database = {};
 
@@ -49,14 +26,9 @@ function drawGraph(width, height, dataFromFront) {
   // SVG
   var svg = d3.select("#containerSVG");
 
-  // drawing graph with info
-  let d = defaultData;
-
-  // Re-setting database and using uploaded data to draw if data base been uploaded
-  if (dataFromFront.length > 0) {
-    database = {};
-    d = dataFromFront;
-  }
+  // Re-setting database and using uploaded data to draw when data has been loaded
+  database = {};
+  let d = dataFromFront;
 
   var d_extent_x = d3.extent(d, (d) => +d[0]),
     d_extent_y = d3.extent(d, (d) => +d[1]);
@@ -150,4 +122,8 @@ function makeid(length) {
   return result;
 }
 
-export { drawGraph, checkPoints, reset, clearSVG };
+function changeOpacity(opacity) {
+  d3.selectAll("circle").attr("opacity", opacity);
+}
+
+export { drawGraph, checkPoints, reset, clearSVG, changeOpacity };
