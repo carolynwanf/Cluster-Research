@@ -1,9 +1,10 @@
-from flask import Flask, render_template, request, redirect, url_for, send_from_directory
+from flask import Flask, render_template, request, redirect, url_for, send_from_directory, url_for, json
 from flask_cors import CORS #comment this on deployment
 from flask_restful import reqparse
 import sys
 import pandas as pd
 import io
+import os
 from sklearn.manifold import TSNE
 
 app = Flask(__name__, static_url_path='', static_folder='frontend/build')
@@ -37,8 +38,20 @@ def data():
     df_tsne['label'] = df['text']
 
     print(df_tsne, file=sys.stderr)
-
+    df_tsne.to_json('./frontend/data/default_data.json', orient="split")
     return df_tsne.to_json(orient="split")
+
+@app.route("/get-default-data", methods=["GET"])
+def defaultData():
+    # SITE_ROOT = os.path.realpath(os.path.dirname(__file__))
+    # json_url = os.path.join(SITE_ROOT, "static/data", "taiwan.json")
+    data = json.load(open("./frontend/data/default_data.json"))
+    print(data, file=sys.stderr)
+    return data
+    
+
+
+
 # Run app in debug mode
 if __name__ == "__main__": 
     app.run(debug=True, host="0.0.0.0", port=5000)

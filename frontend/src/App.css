@@ -161,4 +161,9 @@ p.title {
 /* Disable scrolling */
 html, body {margin: 0; height: 100%; overflow: hidden}
 
+/* Lasso */
+path {
+  stroke:blue;
+}
+
 

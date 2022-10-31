@@ -1,5 +1,5 @@
 import "../App.css";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Button from "react-bootstrap/Button";
 import axios from "axios";
 import Form from "react-bootstrap/Form";
@@ -26,6 +26,7 @@ export const LeftPanel = ({ width, height }) => {
     if (file) {
       fileReader.onload = function (event) {
         const csvOutput = event.target.result;
+        console.log(csvOutput);
         axios
           .post(localDevURL + "upload-data", {
             data: csvOutput,
@@ -44,6 +45,22 @@ export const LeftPanel = ({ width, height }) => {
       fileReader.readAsText(file);
     }
   };
+
+  // Draw graph ONCE when the component mounts
+  useEffect(() => {
+    console.log("running effect");
+    axios
+      .get(localDevURL + "get-default-data")
+      .then((response) => {
+        console.log("SUCCESS", response.data.data);
+        let dataToPlot = response.data.data;
+
+        drawGraph(width, height, dataToPlot);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }, []);
 
   return (
     <div className="left panel">

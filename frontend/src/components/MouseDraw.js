@@ -33,7 +33,7 @@ const Line = ({ points, drawing }) => {
       id="lasso"
       d={line(dataCopy)}
       style={{
-        stroke: "black",
+        stroke: "blue",
         strokeWidth: 2,
         strokeLinejoin: "round",
         strokeLinecap: "round",
@@ -87,21 +87,17 @@ export const MouseDraw = ({ x, y, width, height }) => {
     return () => area.on("mousemove", null);
   }, [mouseMove]);
 
-  // Draw graph ONCE when the component mounts
-  useEffect(() => {
-    console.log("running effect");
-    drawGraph(width, height, []);
-  }, []);
-
   return (
     <div className="body">
       <LeftPanel width={width} height={height} />
-      <svg id="containerSVG" width={width} height={height}>
-        <g
-          ref={drawingAreaRef}
-          onMouseDown={enableDrawing}
-          onMouseUp={disableDrawing}
-        >
+      <svg
+        id="containerSVG"
+        width={width}
+        height={height}
+        onMouseDown={enableDrawing}
+        onMouseUp={disableDrawing}
+      >
+        <g ref={drawingAreaRef}>
           {/* Drawing background, gives "g" its size */}
           <rect
             x={0}
