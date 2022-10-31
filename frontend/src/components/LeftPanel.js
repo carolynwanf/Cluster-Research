@@ -7,8 +7,17 @@ import Form from "react-bootstrap/Form";
 import axios from "axios";
 import { drawGraph, clearSVG, changeOpacity } from "../graph.js";
 import Slider from "@mui/material/Slider";
+import CircularProgress from "@mui/material/CircularProgress";
 
 const localDevURL = "http://127.0.0.1:5000/";
+
+const LoadDataCircle = ({ loadingData }) => {
+  if (!loadingData) {
+    return <div></div>;
+  } else {
+    return <CircularProgress />;
+  }
+};
 
 // Data upload + control panel
 export const LeftPanel = ({ width, height }) => {
@@ -16,6 +25,7 @@ export const LeftPanel = ({ width, height }) => {
   const [opacity, setOpacity] = useState(50);
   const [reductionMethod, setReductionMethod] = useState("TSNE");
   const [perplexity, setPerplexity] = useState(50);
+  const [loadingData, setLoadingData] = useState(false);
 
   // File reader
   const fileReader = new FileReader();
@@ -30,6 +40,7 @@ export const LeftPanel = ({ width, height }) => {
     e.preventDefault();
 
     if (file) {
+      setLoadingData(true);
       fileReader.onload = function (event) {
         const csvOutput = event.target.result;
         console.log("reductionMethod", reductionMethod);
@@ -47,6 +58,7 @@ export const LeftPanel = ({ width, height }) => {
             let dataToPlot = response.data.data;
             clearSVG();
             drawGraph(width, height, dataToPlot);
+            setLoadingData(false);
           })
           .catch((error) => {
             console.log(error);
@@ -124,15 +136,18 @@ export const LeftPanel = ({ width, height }) => {
         </Tab>
         <Tab eventKey="UMAP" title="UMAP"></Tab>
       </Tabs>
-      <Button
-        id="dataUploadButton"
-        variant="secondary"
-        onClick={(e) => {
-          handleOnSubmit(e);
-        }}
-      >
-        import csv
-      </Button>
+      <div className="submitButton">
+        <Button
+          id="dataUploadButton"
+          variant="secondary"
+          onClick={(e) => {
+            handleOnSubmit(e);
+          }}
+        >
+          import csv
+        </Button>
+        <LoadDataCircle loadingData={loadingData} />
+      </div>
       <hr />
       <p className="title"> Display settings</p>
       <div className="sliderBlock">

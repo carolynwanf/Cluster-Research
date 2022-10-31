@@ -50,10 +50,6 @@ svg {
   color:#61dafb;
 }
 
-circle {
-color: blue;
-}
-
 body {
   margin: 0px;
 }
@@ -194,4 +190,14 @@ Table {
   background-color: white;
 }
 
+.submitButton {
+  display:flex;
+}
 
+.submitButton Button {
+  margin-right: 1em;
+}
+
+CircularProgress {
+  color: rgb(106, 146, 214);
+}
