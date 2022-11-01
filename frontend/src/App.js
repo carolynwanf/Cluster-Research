@@ -1,6 +1,5 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
-import React, { useEffect, useState } from "react";
 
 import { MouseDraw } from "./components/MouseDraw.js";
 // import classNames from "classnames/bind";

@@ -66,6 +66,8 @@ export const LeftPanel = ({ width, height }) => {
       };
 
       fileReader.readAsText(file);
+    } else {
+      alert("No file uploaded");
     }
   };
 
@@ -104,7 +106,7 @@ export const LeftPanel = ({ width, height }) => {
       .catch((error) => {
         console.log(error);
       });
-  }, []);
+  }, [height, width]);
 
   return (
     <div className="left panel">

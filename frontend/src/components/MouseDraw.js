@@ -6,7 +6,7 @@ import React, {
   useCallback,
 } from "react";
 import * as d3 from "d3";
-import { drawGraph, checkPoints, reset } from "../graph.js";
+import { checkPoints, reset } from "../graph.js";
 import "../App.css";
 import { RightPanel } from "./RightPanel.js";
 import { LeftPanel } from "./LeftPanel.js";

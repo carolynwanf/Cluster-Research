@@ -43,7 +43,7 @@ function drawGraph(width, height, dataFromFront) {
   }
 
   // Draw circles
-  var circles = svg
+  svg
     .append("g")
     .selectAll("circle")
     .data(d)
