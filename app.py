@@ -20,6 +20,7 @@ def home():
 def data():
     parser = reqparse.RequestParser()
     parser.add_argument('data', type=str)
+    parser.add_argument('reductionMethod', type=str)
 
     args = parser.parse_args()
 
@@ -28,7 +29,6 @@ def data():
 
     #df has text as metadata and other features 
     df = pd.read_csv(io.StringIO(data),sep=",", header=0)
-    #print(df, file=sys.stderr)
     
     
     #This performs dimensionality reduction, for now fixed perplexity but could be changed later
