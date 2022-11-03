@@ -1,3 +1,4 @@
+from multiprocessing import reduction
 from flask import Flask, render_template, request, redirect, url_for, send_from_directory, url_for, json
 from flask_cors import CORS #comment this on deployment
 from flask_restful import reqparse
@@ -6,6 +7,7 @@ import pandas as pd
 import io
 import os
 from sklearn.manifold import TSNE
+import umap
 
 app = Flask(__name__, static_url_path='', static_folder='frontend/build')
 CORS(app)
@@ -30,17 +32,22 @@ def data():
     #df has text as metadata and other features 
     df = pd.read_csv(io.StringIO(data),sep=",", header=0)
     
-    
-    #This performs dimensionality reduction, for now fixed perplexity but could be changed later
-    X_embedded = TSNE(n_components=2, perplexity=50, verbose=True).fit_transform(df.drop(columns = 'text').values)
+    # Check reduction method
+    if reductionMethod == "TSNE":
+        parser.add_argument('perplexity', type=int)
+        perplexity = args['perplexity']
+        #This performs dimensionality reduction, for now fixed perplexity but could be changed later
+        X_embedded = TSNE(n_components=2, perplexity=perplexity, verbose=True).fit_transform(df.drop(columns = 'text').values)
+    else:
+         X_embedded = umap.UMAP(n_components=2).fit_transform(df.drop(columns = 'text').values)
     
     #Converting the x,y,labels into dataframe again
-    df_tsne = pd.DataFrame(X_embedded,columns=['x', 'y'])
-    df_tsne['label'] = df['text']
+    df_dr = pd.DataFrame(X_embedded,columns=['x', 'y'])
+    df_dr['label'] = df['text']
 
-    print(df_tsne, file=sys.stderr)
+    print(df_dr, file=sys.stderr)
     # df_tsne.to_json('./frontend/data/default_data.json', orient="split")
-    return df_tsne.to_json(orient="split")
+    return df_dr.to_json(orient="split")
 
 @app.route("/get-default-data", methods=["GET"])
 def defaultData():

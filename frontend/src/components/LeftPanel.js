@@ -113,7 +113,7 @@ export const LeftPanel = ({ width, height }) => {
       <p className="title">Data</p>
       {/* File selection */}
       <Form.Group controlId="formFile" className="mb-3">
-        <Form.Label>Upload your own data</Form.Label>
+        {/* <Form.Label>Upload your own data</Form.Label> */}
         <Form.Control type="file" accept=".csv" onChange={handleFileChange} />
       </Form.Group>
       {/* Dimensionality reduction method selection */}
@@ -146,7 +146,7 @@ export const LeftPanel = ({ width, height }) => {
             handleOnSubmit(e);
           }}
         >
-          import csv
+          project
         </Button>
         <LoadDataCircle loadingData={loadingData} />
       </div>
