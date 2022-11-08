@@ -187,11 +187,11 @@ th {
   font-weight:600;
 }
 
-.token {
+.label {
   cursor:pointer;
 }
 
-.token:hover {
+.label:hover {
   background-color: rgb(232, 243, 255);
 }
 

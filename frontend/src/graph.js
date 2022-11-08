@@ -2,6 +2,7 @@ import * as d3 from "d3";
 
 // Storing state location data for quicker access
 let database = {};
+let globalOpacity = 0.5;
 
 function clearSVG() {
   // SVG
@@ -47,7 +48,7 @@ function drawGraph(width, height, dataFromFront) {
     .data(dataFromFront)
     .enter()
     .append("circle")
-    .attr("r", 3)
+    .attr("r", 2)
     .attr("opacity", 0.5)
     .attr("id", (d) => {
       let id = d[3];
@@ -125,16 +126,24 @@ function makeid(length) {
 
 function changeOpacity(opacity) {
   d3.selectAll("circle").attr("opacity", opacity);
+  globalOpacity = opacity;
 }
 
-function highlightToken(event) {
-  // Reset previously highlighted tokens
-  d3.selectAll(".brushed").attr("fill", "orange");
-  // TODO: highlight token
+function highlightLabel(event) {
+  // Reset previously highlighted labels
+  d3.selectAll(".brushed")
+    .attr("fill", "orange")
+    .attr("opacity", globalOpacity)
+    .attr("r", 2);
   console.log("highlighting", event.target.id);
   let ids = event.target.id.split(" ");
+
+  // Highlight labels corresponding to ids
   for (let id of ids) {
-    d3.select("#" + id).attr("fill", "green");
+    d3.select("#" + id)
+      .attr("fill", "green")
+      .attr("opacity", globalOpacity + 0.5)
+      .attr("r", 3);
   }
 }
 
@@ -144,5 +153,5 @@ export {
   reset,
   clearSVG,
   changeOpacity,
-  highlightToken,
+  highlightLabel,
 };

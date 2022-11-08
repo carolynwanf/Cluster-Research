@@ -3,7 +3,7 @@ import { useState } from "react";
 import Table from "react-bootstrap/Table";
 import Button from "react-bootstrap/Button";
 import { contours, count } from "d3";
-import { highlightToken } from "../graph.js";
+import { highlightLabel } from "../graph.js";
 
 // Analysis panel for displaying info
 export const RightPanel = ({ points }) => {
@@ -27,9 +27,9 @@ export const RightPanel = ({ points }) => {
     // Adds corresponding items to selected items
     randomIndices.forEach((i) => {
       newSelectedItems.push(
-        <tr key={currCountsArray[i][1].id} onClick={(e) => highlightToken(e)}>
+        <tr key={currCountsArray[i][1].id} onClick={(e) => highlightLabel(e)}>
           <td>{newSelectedItems.length + 1}</td>
-          <td id={currCountsArray[i][1].id} className="token">
+          <td id={currCountsArray[i][1].id} className="label">
             {currCountsArray[i][0]}
           </td>
         </tr>
