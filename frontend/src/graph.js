@@ -28,17 +28,16 @@ function drawGraph(width, height, dataFromFront) {
 
   // Re-setting database and using uploaded data to draw when data has been loaded
   database = {};
-  let d = dataFromFront;
 
-  var d_extent_x = d3.extent(d, (d) => +d[0]),
-    d_extent_y = d3.extent(d, (d) => +d[1]);
+  var d_extent_x = d3.extent(dataFromFront, (d) => +d[0]),
+    d_extent_y = d3.extent(dataFromFront, (d) => +d[1]);
 
   // Draw axes
   x.domain(d_extent_x);
   y.domain(d_extent_y);
 
   // Generate IDs for points
-  for (let row of d) {
+  for (let row of dataFromFront) {
     row.push(makeid(10));
   }
 
@@ -46,7 +45,7 @@ function drawGraph(width, height, dataFromFront) {
   svg
     .append("g")
     .selectAll("circle")
-    .data(d)
+    .data(dataFromFront)
     .enter()
     .append("circle")
     .attr("r", 3)
@@ -66,10 +65,15 @@ function drawGraph(width, height, dataFromFront) {
       database[d[3]].cy = centerY;
       return centerY;
     })
-    .attr("class", "non-brushed");
+    .attr("class", "non-brushed")
+    .on("mouseover", function (d, i) {
+      // TODO: draw rect with label inside
+    });
 
   svg.append("g");
   console.log(database);
+
+  return dataFromFront;
 }
 
 // Check if points are within path on mouseup
@@ -81,16 +85,17 @@ function checkPoints() {
   console.log(database);
   console.log(path);
   // d3.polygonContains(lassoPolygon, [x, y]);
-  for (let [label, labelInfo] of Object.entries(database)) {
+  for (let [id, idInfo] of Object.entries(database)) {
     const point = svg.createSVGPoint();
 
-    point.x = labelInfo.cx;
-    point.y = labelInfo.cy;
+    point.x = idInfo.cx;
+    point.y = idInfo.cy;
     // Check if point is in path
     if (path.isPointInFill(point)) {
-      brushedPoints.push(labelInfo);
+      idInfo.id = id;
+      brushedPoints.push(idInfo);
       // Change class and recolor points accordingly
-      let selector = "#" + label;
+      let selector = "#" + id;
       d3.selectAll(selector)
         .attr("class", "brushed")
         .attr("fill", (d, i, elements) => {

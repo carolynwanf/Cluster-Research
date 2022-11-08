@@ -23,6 +23,7 @@ def data():
     parser = reqparse.RequestParser()
     parser.add_argument('data', type=str)
     parser.add_argument('reductionMethod', type=str)
+    parser.add_argument('perplexity', type=int)
 
     args = parser.parse_args()
 
@@ -34,7 +35,6 @@ def data():
     
     # Check reduction method
     if reductionMethod == "TSNE":
-        parser.add_argument('perplexity', type=int)
         perplexity = args['perplexity']
         #This performs dimensionality reduction, for now fixed perplexity but could be changed later
         X_embedded = TSNE(n_components=2, perplexity=perplexity, verbose=True).fit_transform(df.drop(columns = 'text').values)
@@ -45,7 +45,6 @@ def data():
     df_dr = pd.DataFrame(X_embedded,columns=['x', 'y'])
     df_dr['label'] = df['text']
 
-    print(df_dr, file=sys.stderr)
     # df_tsne.to_json('./frontend/data/default_data.json', orient="split")
     return df_dr.to_json(orient="split")
 
@@ -54,7 +53,6 @@ def defaultData():
     # SITE_ROOT = os.path.realpath(os.path.dirname(__file__))
     # json_url = os.path.join(SITE_ROOT, "static/data", "taiwan.json")
     data = json.load(open("./frontend/data/default_data.json"))
-    print(data, file=sys.stderr)
     return data
     
 

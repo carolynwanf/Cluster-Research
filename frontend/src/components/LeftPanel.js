@@ -35,11 +35,12 @@ export const LeftPanel = ({ width, height }) => {
     setFile(e.target.files[0]);
   };
 
-  // Handle file submission
-  const handleOnSubmit = (e) => {
+  // Handle file projection
+  const handleFileProject = (e) => {
     e.preventDefault();
 
-    if (file) {
+    // Submits post request if there is not a request already being processed
+    if (file && !loadingData) {
       setLoadingData(true);
       fileReader.onload = function (event) {
         const csvOutput = event.target.result;
@@ -66,9 +67,14 @@ export const LeftPanel = ({ width, height }) => {
       };
 
       fileReader.readAsText(file);
-    } else {
+    } else if (!file) {
       alert("No file uploaded");
     }
+  };
+
+  // Handle cached projection
+  const handleCachedProject = (e) => {
+    // TODO: handle!!
   };
 
   // SLIDERS
@@ -110,12 +116,13 @@ export const LeftPanel = ({ width, height }) => {
 
   return (
     <div className="left panel">
-      <p className="title">Data</p>
+      <p className="title">Upload Data</p>
       {/* File selection */}
       <Form.Group controlId="formFile" className="mb-3">
-        {/* <Form.Label>Upload your own data</Form.Label> */}
+        <Form.Label>Upload a file</Form.Label>
         <Form.Control type="file" accept=".csv" onChange={handleFileChange} />
       </Form.Group>
+      {/* TODO: add column selector*/}
       {/* Dimensionality reduction method selection */}
       <Tabs
         activeKey={reductionMethod}
@@ -143,14 +150,31 @@ export const LeftPanel = ({ width, height }) => {
           id="dataUploadButton"
           variant="secondary"
           onClick={(e) => {
-            handleOnSubmit(e);
+            handleFileProject(e);
           }}
         >
           project
         </Button>
         <LoadDataCircle loadingData={loadingData} />
       </div>
+
       <hr />
+      {/* Use previously cached projection */}
+      <p className="title">See a Previous Projection</p>
+      <Form.Group controlId="formFile" className="mb-3">
+        {/* TODO: add dropdown linked to local storage */}
+      </Form.Group>
+      <Button
+        id="cachedDataButton"
+        variant="secondary"
+        onClick={(e) => {
+          handleCachedProject(e);
+        }}
+      >
+        project
+      </Button>
+      <hr />
+
       <p className="title"> Display settings</p>
       <div className="sliderBlock">
         <p>Opacity</p>
