@@ -9,49 +9,52 @@ import { highlightToken } from "../graph.js";
 export const RightPanel = ({ points }) => {
   const [selectedItems, setSelectedItems] = useState([]);
 
-  // Update selected items if new items have been selected
-  // TODO: change to select 5 random sentences
-  // Account for case where there are less than 5
   const generateTokens = () => {
-    if (points.length > 0 && selectedItems.length === 0) {
-      let newSelectedItems = [];
-      let counts = {};
+    let newSelectedItems = [];
+    let randomIndices = new Set();
 
-      for (let point of points) {
-        if (point.label in counts) {
-          counts[point.label].count++;
-          counts[point.label].id = counts[point.label].id + " " + point.id;
-        } else {
-          counts[point.label] = { count: 1, id: point.id };
-        }
+    // Adds random indices
+    if (countsArray.length > 5) {
+      while (randomIndices.size < 5) {
+        randomIndices.add(Math.floor(Math.random() * countsArray.length));
       }
-
-      for (let [label, count] of Object.entries(counts)) {
-        newSelectedItems.push(
-          <tr key={count.id} onClick={(e) => highlightToken(e)}>
-            <td id={count.id}>{label}</td>
-            <td>{count.count}</td>
-          </tr>
-        );
-      }
-
-      // Sort items in decreasing order by frequency
-      newSelectedItems.sort(function (a, b) {
-        return (
-          b.props.children[1].props.children -
-          a.props.children[1].props.children
-        );
-      });
-
-      setSelectedItems(newSelectedItems);
-
-      // Update selected items if selection is cleared
-    } else if (points.length === 0 && selectedItems.length > 0) {
-      setSelectedItems([]);
+    } else {
+      for (let i = 0; i < countsArray.length; i++) randomIndices.add(i);
     }
-  };
+    console.log(randomIndices);
+    randomIndices.forEach((i) => {
+      newSelectedItems.push(
+        <tr key={countsArray[i][1].id} onClick={(e) => highlightToken(e)}>
+          <td>{newSelectedItems.length + 1}</td>
+          <td id={countsArray[i][1].id} className="token">
+            {countsArray[i][0]}
+          </td>
+        </tr>
+      );
+    });
 
-  generateTokens();
+    setSelectedItems(newSelectedItems);
+  };
+  let countsArray = [];
+  if (points.length > 0 && selectedItems.length === 0) {
+    let counts = {};
+
+    for (let point of points) {
+      if (point.label in counts) {
+        counts[point.label].count++;
+        counts[point.label].id = counts[point.label].id + " " + point.id;
+      } else {
+        counts[point.label] = { count: 1, id: point.id };
+      }
+    }
+
+    countsArray = Object.entries(counts);
+
+    generateTokens();
+  } // Update selected items if selection is cleared
+  else if (points.length === 0 && selectedItems.length > 0) {
+    setSelectedItems([]);
+  }
 
   // Generates new tokens on refresh
   const handleRefreshTokens = (e) => {
@@ -64,8 +67,8 @@ export const RightPanel = ({ points }) => {
       <Table bordered>
         <thead>
           <tr>
-            <th>label</th>
-            <th>frequency</th>
+            <th>#</th>
+            <th>5 representative sentences</th>
           </tr>
         </thead>
         <tbody>{selectedItems}</tbody>
@@ -78,7 +81,7 @@ export const RightPanel = ({ points }) => {
           handleRefreshTokens(e);
         }}
       >
-        refresh
+        new sentences
       </Button>
     </div>
   );
