@@ -37,7 +37,7 @@ const Line = ({ points, drawing }) => {
         strokeWidth: 2,
         strokeLinejoin: "round",
         strokeLinecap: "round",
-        fill: "rgba(0,100,255,0.2)",
+        fill: "rgba(0,100,255,0.05)",
       }}
     />
   );

@@ -2,6 +2,8 @@ import "../App.css";
 import { useState } from "react";
 import Table from "react-bootstrap/Table";
 import Button from "react-bootstrap/Button";
+import { contours } from "d3";
+import { highlightToken } from "../graph.js";
 
 // Analysis panel for displaying info
 export const RightPanel = ({ points }) => {
@@ -17,17 +19,18 @@ export const RightPanel = ({ points }) => {
 
       for (let point of points) {
         if (point.label in counts) {
-          counts[point.label]++;
+          counts[point.label].count++;
+          counts[point.label].id = counts[point.label].id + " " + point.id;
         } else {
-          counts[point.label] = 1;
+          counts[point.label] = { count: 1, id: point.id };
         }
       }
 
       for (let [label, count] of Object.entries(counts)) {
         newSelectedItems.push(
-          <tr key={label}>
-            <td>{label}</td>
-            <td>{count}</td>
+          <tr key={count.id} onClick={(e) => highlightToken(e)}>
+            <td id={count.id}>{label}</td>
+            <td>{count.count}</td>
           </tr>
         );
       }
@@ -47,6 +50,8 @@ export const RightPanel = ({ points }) => {
       setSelectedItems([]);
     }
   };
+
+  generateTokens();
 
   // Generates new tokens on refresh
   const handleRefreshTokens = (e) => {

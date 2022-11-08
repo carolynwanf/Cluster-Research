@@ -12,7 +12,6 @@ function clearSVG() {
 
 // Function to draw graph, called once at render time
 function drawGraph(width, height, dataFromFront) {
-  console.log(width, height);
   // Location var
   var margin = { top: 20, right: 0, bottom: 50, left: 85 },
     svg_dx = width,
@@ -71,19 +70,16 @@ function drawGraph(width, height, dataFromFront) {
     });
 
   svg.append("g");
-  console.log(database);
+  // console.log(database);
 
   return dataFromFront;
 }
 
 // Check if points are within path on mouseup
 function checkPoints() {
-  console.log(document.getElementsByClassName("non-brushed").length);
   var path = document.getElementById("lasso");
   let svg = document.getElementsByTagName("svg")[0];
   let brushedPoints = [];
-  console.log(database);
-  console.log(path);
   // d3.polygonContains(lassoPolygon, [x, y]);
   for (let [id, idInfo] of Object.entries(database)) {
     const point = svg.createSVGPoint();
@@ -101,7 +97,7 @@ function checkPoints() {
         .attr("fill", (d, i, elements) => {
           let color = "black";
           if (d3.select(elements[i]).attr("class") === "brushed") {
-            color = "red";
+            color = "orange";
           }
 
           return color;
@@ -131,4 +127,22 @@ function changeOpacity(opacity) {
   d3.selectAll("circle").attr("opacity", opacity);
 }
 
-export { drawGraph, checkPoints, reset, clearSVG, changeOpacity };
+function highlightToken(event) {
+  // Reset previously highlighted tokens
+  d3.selectAll(".brushed").attr("fill", "orange");
+  // TODO: highlight token
+  console.log("highlighting", event.target.id);
+  let ids = event.target.id.split(" ");
+  for (let id of ids) {
+    d3.select("#" + id).attr("fill", "green");
+  }
+}
+
+export {
+  drawGraph,
+  checkPoints,
+  reset,
+  clearSVG,
+  changeOpacity,
+  highlightToken,
+};
