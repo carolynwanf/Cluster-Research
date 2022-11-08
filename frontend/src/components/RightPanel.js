@@ -2,32 +2,33 @@ import "../App.css";
 import { useState } from "react";
 import Table from "react-bootstrap/Table";
 import Button from "react-bootstrap/Button";
-import { contours } from "d3";
+import { contours, count } from "d3";
 import { highlightToken } from "../graph.js";
 
 // Analysis panel for displaying info
 export const RightPanel = ({ points }) => {
   const [selectedItems, setSelectedItems] = useState([]);
+  const [countsArray, setCountsArray] = useState([]);
 
-  const generateTokens = () => {
+  const generateTokens = (currCountsArray) => {
     let newSelectedItems = [];
     let randomIndices = new Set();
 
     // Adds random indices
-    if (countsArray.length > 5) {
+    if (currCountsArray.length > 5) {
       while (randomIndices.size < 5) {
-        randomIndices.add(Math.floor(Math.random() * countsArray.length));
+        randomIndices.add(Math.floor(Math.random() * currCountsArray.length));
       }
     } else {
-      for (let i = 0; i < countsArray.length; i++) randomIndices.add(i);
+      for (let i = 0; i < currCountsArray.length; i++) randomIndices.add(i);
     }
-    console.log(randomIndices);
+
     randomIndices.forEach((i) => {
       newSelectedItems.push(
-        <tr key={countsArray[i][1].id} onClick={(e) => highlightToken(e)}>
+        <tr key={currCountsArray[i][1].id} onClick={(e) => highlightToken(e)}>
           <td>{newSelectedItems.length + 1}</td>
-          <td id={countsArray[i][1].id} className="token">
-            {countsArray[i][0]}
+          <td id={currCountsArray[i][1].id} className="token">
+            {currCountsArray[i][0]}
           </td>
         </tr>
       );
@@ -35,7 +36,7 @@ export const RightPanel = ({ points }) => {
 
     setSelectedItems(newSelectedItems);
   };
-  let countsArray = [];
+
   if (points.length > 0 && selectedItems.length === 0) {
     let counts = {};
 
@@ -48,9 +49,11 @@ export const RightPanel = ({ points }) => {
       }
     }
 
-    countsArray = Object.entries(counts);
+    let newCountsArray = Object.entries(counts);
 
-    generateTokens();
+    setCountsArray(newCountsArray);
+
+    generateTokens(newCountsArray);
   } // Update selected items if selection is cleared
   else if (points.length === 0 && selectedItems.length > 0) {
     setSelectedItems([]);
@@ -58,17 +61,18 @@ export const RightPanel = ({ points }) => {
 
   // Generates new tokens on refresh
   const handleRefreshTokens = (e) => {
-    generateTokens();
+    generateTokens(countsArray);
   };
 
   return (
     <div className="right panel">
-      <p className="title">Analysis</p>
+      <p className="title">Representative tokens</p>
+      <p>{countsArray.length} total unique tokens</p>
       <Table bordered>
         <thead>
           <tr>
             <th>#</th>
-            <th>5 representative sentences</th>
+            <th>token</th>
           </tr>
         </thead>
         <tbody>{selectedItems}</tbody>

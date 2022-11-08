@@ -187,6 +187,14 @@ th {
   font-weight:600;
 }
 
+.token {
+  cursor:pointer;
+}
+
+.token:hover {
+  background-color: rgb(232, 243, 255);
+}
+
 Table {
   background-color: white;
 }
