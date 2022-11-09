@@ -2,13 +2,13 @@ import "../App.css";
 import { useState } from "react";
 import Table from "react-bootstrap/Table";
 import Button from "react-bootstrap/Button";
-import { contours, count } from "d3";
 import { highlightLabel } from "../graph.js";
 
 // Analysis panel for displaying info
 export const RightPanel = ({ points }) => {
   const [selectedItems, setSelectedItems] = useState([]);
   const [countsArray, setCountsArray] = useState([]);
+  const [seeAllState, setSeeAllState] = useState(false);
 
   // Generates max of 5 new representative labels
   const generateLabels = (currCountsArray) => {
@@ -60,11 +60,38 @@ export const RightPanel = ({ points }) => {
   } // Update selected items if selection is cleared
   else if (points.length === 0 && selectedItems.length > 0) {
     setSelectedItems([]);
+    setCountsArray([]);
   }
 
   // Generates new labels on refresh
   const handleRefreshLabels = (e) => {
     generateLabels(countsArray);
+  };
+
+  // Displays all labels or collapses labels when asked
+  const handleSeeAll = (e) => {
+    // If you can't see everything
+    if (!seeAllState) {
+      let newSelectedItems = [];
+      for (let [label, countInfo] of countsArray) {
+        newSelectedItems.push(
+          <tr key={countInfo.id} onClick={(e) => highlightLabel(e)}>
+            <td>{newSelectedItems.length + 1}</td>
+            <td id={countInfo.id} className="label">
+              {label}
+            </td>
+          </tr>
+        );
+      }
+
+      setSelectedItems(newSelectedItems);
+
+      // If you can see everything already
+    } else {
+      generateLabels(countsArray);
+    }
+
+    setSeeAllState(!seeAllState);
   };
 
   return (
@@ -86,10 +113,26 @@ export const RightPanel = ({ points }) => {
         onClick={(e) => {
           handleRefreshLabels(e);
         }}
+        disabled={
+          selectedItems.length < 5 ||
+          selectedItems.length === countsArray.length
+            ? true
+            : false
+        }
+      >
+        new labels
+      </Button>
+      <Button
+        id="seeAllButton"
+        variant="secondary"
+        onClick={(e) => {
+          handleSeeAll(e);
+        }}
         disabled={selectedItems.length < 5 ? true : false}
       >
-        new sentences
+        {seeAllState ? "collapse" : "see all"}
       </Button>
+      <div className="footerSpacing"></div>
     </div>
   );
 };

@@ -45,14 +45,14 @@ def data():
     df_dr = pd.DataFrame(X_embedded,columns=['x', 'y'])
     df_dr['label'] = df['text']
 
-    # df_tsne.to_json('./frontend/data/default_data.json', orient="split")
+    # df_dr.to_json('./frontend/data/snap_embedding.json', orient="split")
     return df_dr.to_json(orient="split")
 
 @app.route("/get-default-data", methods=["GET"])
 def defaultData():
     # SITE_ROOT = os.path.realpath(os.path.dirname(__file__))
     # json_url = os.path.join(SITE_ROOT, "static/data", "taiwan.json")
-    data = json.load(open("./frontend/data/default_data.json"))
+    data = json.load(open("./frontend/data/hp_embedding.json"))
     return data
     
 

@@ -65,10 +65,7 @@ function drawGraph(width, height, dataFromFront) {
       database[d[3]].cy = centerY;
       return centerY;
     })
-    .attr("class", "non-brushed")
-    .on("mouseover", function (d, i) {
-      // TODO: draw rect with label inside
-    });
+    .attr("class", "non-brushed");
 
   svg.append("g");
   // console.log(database);
@@ -134,6 +131,7 @@ function highlightLabel(event) {
   d3.selectAll(".brushed")
     .attr("fill", "orange")
     .attr("opacity", globalOpacity)
+    .attr("class", "brushed")
     .attr("r", 2);
   console.log("highlighting", event.target.id);
   let ids = event.target.id.split(" ");
@@ -142,9 +140,149 @@ function highlightLabel(event) {
   for (let id of ids) {
     d3.select("#" + id)
       .attr("fill", "green")
+      .attr("class", "brushed selected")
       .attr("opacity", globalOpacity + 0.5)
-      .attr("r", 3);
+      .attr("r", 4);
   }
+}
+
+// Draws tool tip for specific point on hover
+function drawToolTip(id, width) {
+  let pointInfo = database[id];
+  let svg = d3.select("#containerSVG");
+  let toolTipWidth = 340;
+  let rectPadding = 10;
+
+  // If dot is on right side of screen, flip tooltip
+  let flip = false;
+  if (pointInfo.cx > width / 2) {
+    flip = true;
+  }
+  console.log(flip, width);
+
+  // Draw tooltip of label text with rectangular border
+  // g element to hold the rect and text
+  var pointLabelContainer = svg
+    .append("g")
+    .attr("transform", "translate(" + pointInfo.cx + "," + pointInfo.cy + ")")
+    .attr("class", "pointLabel")
+    .attr("id", id + "label");
+
+  // Rect
+  pointLabelContainer
+    .append("rect")
+    .attr("x", () => {
+      if (!flip) {
+        return 10;
+      } else {
+        return -(toolTipWidth + 10);
+      }
+    })
+    .attr("y", -60)
+    .attr("width", toolTipWidth)
+    .attr("height", 50)
+    .attr("fill", "white")
+    .attr("stroke", "black")
+    .attr("stroke-width", "1px");
+
+  // Text
+  pointLabelContainer
+    .append("text")
+    .text(pointInfo.label)
+    .attr("x", () => {
+      if (!flip) {
+        return 10 + rectPadding;
+      } else {
+        return -toolTipWidth;
+      }
+    })
+    .attr("y", -60 + rectPadding + 12)
+    .style("z-index", "10")
+    .attr("font-family", "Arial")
+    .attr("fill", "black")
+    .attr("stroke-width", "1px")
+    .call(wrap, toolTipWidth - 2 * rectPadding)
+
+    .attr("vector-effect", "non-scaling-stroke");
+
+  // Change fill/size of the corresponding point
+  d3.select("#" + id)
+    .attr("fill", "green")
+    .attr("opacity", globalOpacity + 0.5)
+    .attr("r", 4);
+}
+
+// Function for wrapping svg text elements
+function wrap(text, width) {
+  text.each(function () {
+    var text = d3.select(this),
+      words = text.text().split(/\s+/).reverse(),
+      word,
+      line = [],
+      lineNumber = 0,
+      lineHeight = 1.1, // ems
+      x = text.attr("x"),
+      y = text.attr("y"),
+      dy = 0, //parseFloat(text.attr("dy")),
+      tspan = text
+        .text(null)
+        .append("tspan")
+        .attr("x", x)
+        .attr("y", y)
+        .attr("dy", dy + "em");
+    while ((word = words.pop())) {
+      line.push(word);
+      tspan.text(line.join(" "));
+      if (tspan.node().getComputedTextLength() > width) {
+        line.pop();
+        tspan.text(line.join(" "));
+        line = [word];
+        tspan = text
+          .append("tspan")
+          .attr("x", x)
+          .attr("y", y)
+          .attr("dy", ++lineNumber * lineHeight + dy + "em")
+          .text(word);
+      }
+    }
+  });
+}
+
+// Function for removing a tooltip from the DOM on mouseOut
+function eraseToolTip(id) {
+  let className = d3.select("#" + id).attr("class");
+
+  d3.select("#" + id + "label").remove();
+
+  // Resetting points to appropriate fill, opacity, and radius based on state
+  d3.select("#" + id)
+    .attr("fill", () => {
+      if (className === "brushed") {
+        return "orange";
+      } else if (className === "brushed selected") {
+        return "green";
+      } else {
+        return "black";
+      }
+    })
+    .attr("opacity", () => {
+      if (className === "brushed") {
+        return globalOpacity;
+      } else if (className === "brushed selected") {
+        return globalOpacity + 0.5;
+      } else {
+        return globalOpacity;
+      }
+    })
+    .attr("r", () => {
+      if (className === "brushed") {
+        return 2;
+      } else if (className === "brushed selected") {
+        return 4;
+      } else {
+        return 2;
+      }
+    });
 }
 
 export {
@@ -154,4 +292,6 @@ export {
   clearSVG,
   changeOpacity,
   highlightLabel,
+  drawToolTip,
+  eraseToolTip,
 };

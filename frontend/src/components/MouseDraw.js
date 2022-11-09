@@ -6,7 +6,7 @@ import React, {
   useCallback,
 } from "react";
 import * as d3 from "d3";
-import { checkPoints, reset } from "../graph.js";
+import { checkPoints, reset, drawToolTip, eraseToolTip } from "../graph.js";
 import "../App.css";
 import { RightPanel } from "./RightPanel.js";
 import { LeftPanel } from "./LeftPanel.js";
@@ -80,6 +80,18 @@ export const MouseDraw = ({ x, y, width, height }) => {
     setSelectedPoints(checkPoints());
   }
 
+  function handleMouseOver(e) {
+    if (!drawing && e.target.tagName.toLowerCase() === "circle") {
+      drawToolTip(e.target.id, width);
+    }
+  }
+
+  function handleMouseOut(e) {
+    if (!drawing && e.target.tagName.toLowerCase() === "circle") {
+      eraseToolTip(e.target.id);
+    }
+  }
+
   // Called mouseMove on mouseover of the drawing area
   useEffect(() => {
     const area = d3.select(drawingAreaRef.current);
@@ -96,6 +108,12 @@ export const MouseDraw = ({ x, y, width, height }) => {
         height={height}
         onMouseDown={enableDrawing}
         onMouseUp={disableDrawing}
+        onMouseOver={(e) => {
+          handleMouseOver(e);
+        }}
+        onMouseOut={(e) => {
+          handleMouseOut(e);
+        }}
       >
         <g ref={drawingAreaRef}>
           {/* Drawing background, gives "g" its size */}
