@@ -168,7 +168,27 @@ function drawToolTip(id, width) {
     .attr("class", "pointLabel")
     .attr("id", id + "label");
 
+  // Text
+  let toytext = pointLabelContainer
+    .append("text")
+    .text(pointInfo.label)
+    .attr("x", () => {
+      if (!flip) {
+        return 10 + rectPadding;
+      } else {
+        return -toolTipWidth;
+      }
+    })
+    .attr("y", -60 + rectPadding + 12)
+    .attr("id", "toyText");
+
+  let lines = wrap(toytext, toolTipWidth - 2 * rectPadding);
+  console.log(lines);
+
+  d3.select("#toyText").remove();
+
   // Rect
+  let toolTipHeight = 1.1 * (lines + 1) + 1;
   pointLabelContainer
     .append("rect")
     .attr("x", () => {
@@ -180,12 +200,18 @@ function drawToolTip(id, width) {
     })
     .attr("y", -60)
     .attr("width", toolTipWidth)
-    .attr("height", 50)
+    .attr("height", toolTipHeight + "em")
     .attr("fill", "white")
     .attr("stroke", "black")
-    .attr("stroke-width", "1px");
+    .attr("stroke-width", "1px")
+    .style("z-index", "1");
 
-  // Text
+  // Change fill/size of the corresponding point
+  d3.select("#" + id)
+    .attr("fill", "green")
+    .attr("opacity", globalOpacity + 0.5)
+    .attr("r", 4);
+
   pointLabelContainer
     .append("text")
     .text(pointInfo.label)
@@ -201,19 +227,14 @@ function drawToolTip(id, width) {
     .attr("font-family", "Arial")
     .attr("fill", "black")
     .attr("stroke-width", "1px")
-    .call(wrap, toolTipWidth - 2 * rectPadding)
-
-    .attr("vector-effect", "non-scaling-stroke");
-
-  // Change fill/size of the corresponding point
-  d3.select("#" + id)
-    .attr("fill", "green")
-    .attr("opacity", globalOpacity + 0.5)
-    .attr("r", 4);
+    .style("z-index", "10")
+    .attr("vector-effect", "non-scaling-stroke")
+    .call(wrap, toolTipWidth - 2 * rectPadding);
 }
 
 // Function for wrapping svg text elements
 function wrap(text, width) {
+  let lines = 0;
   text.each(function () {
     var text = d3.select(this),
       words = text.text().split(/\s+/).reverse(),
@@ -245,7 +266,10 @@ function wrap(text, width) {
           .text(word);
       }
     }
+    lines = lineNumber;
   });
+
+  return lines;
 }
 
 // Function for removing a tooltip from the DOM on mouseOut
