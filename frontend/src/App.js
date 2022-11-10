@@ -2,20 +2,20 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
 
 import { MouseDraw } from "./components/MouseDraw.js";
+import { LeftPanel } from "./components/LeftPanel.js";
 // import classNames from "classnames/bind";
 import { Header } from "./components/Navbar.js";
 
 function App() {
+  let width = window.innerWidth - 640;
+  let height = window.innerHeight - 50;
   return (
     <div className="App">
       <Header />
-
-      <MouseDraw
-        x={0}
-        y={0}
-        width={window.innerWidth - 640}
-        height={window.innerHeight - 50}
-      />
+      <div className="body">
+        <LeftPanel width={width} height={height} />
+        <MouseDraw x={0} y={0} width={width} height={height} />
+      </div>
     </div>
   );
 }

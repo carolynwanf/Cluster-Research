@@ -163,6 +163,11 @@ p.title {
   margin-left:0.5em;
 }
 
+.tableDiv {
+  height:50%;
+  overflow:scroll;
+}
+
 /* Disable scrolling */
 html, body {margin: 0; height: 100%; overflow: hidden}
 

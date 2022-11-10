@@ -5,7 +5,7 @@ import Tab from "react-bootstrap/Tab";
 import Tabs from "react-bootstrap/Tabs";
 import Form from "react-bootstrap/Form";
 import axios from "axios";
-import { drawGraph, clearSVG, changeOpacity } from "../graph.js";
+import { drawGraph, clearSVG, changeOpacity } from "../helperFunctions.js";
 import Slider from "@mui/material/Slider";
 import CircularProgress from "@mui/material/CircularProgress";
 

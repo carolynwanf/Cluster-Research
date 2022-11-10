@@ -6,10 +6,15 @@ import React, {
   useCallback,
 } from "react";
 import * as d3 from "d3";
-import { checkPoints, reset, drawToolTip, eraseToolTip } from "../graph.js";
+import {
+  checkPoints,
+  reset,
+  drawToolTip,
+  eraseToolTip,
+} from "../helperFunctions.js";
 import "../App.css";
 import { RightPanel } from "./RightPanel.js";
-import { LeftPanel } from "./LeftPanel.js";
+import axios from "axios";
 
 // Line element
 const Line = ({ points, drawing }) => {
@@ -78,6 +83,7 @@ export const MouseDraw = ({ x, y, width, height }) => {
     setDrawing(false);
     // Check if points are in path on mouseup
     setSelectedPoints(checkPoints());
+    // TODO: send points to back
   }
 
   function handleMouseOver(e) {
@@ -101,7 +107,6 @@ export const MouseDraw = ({ x, y, width, height }) => {
 
   return (
     <div className="body">
-      <LeftPanel width={width} height={height} />
       <svg
         id="containerSVG"
         width={width}
@@ -128,7 +133,7 @@ export const MouseDraw = ({ x, y, width, height }) => {
           <Line points={currentLine.points} drawing={drawing} />
         </g>
       </svg>
-      <RightPanel points={selectedPoints} />
+      <RightPanel plotPoints={selectedPoints} pathPoints={currentLine.points} />
     </div>
   );
 };
