@@ -119,7 +119,6 @@ export const LeftPanel = ({ width, height }) => {
       <p className="title">Upload Data</p>
       {/* File selection */}
       <Form.Group controlId="formFile" className="mb-3">
-        <Form.Label>Upload a file</Form.Label>
         <Form.Control type="file" accept=".csv" onChange={handleFileChange} />
       </Form.Group>
       {/* TODO: add column selector*/}

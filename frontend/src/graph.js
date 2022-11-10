@@ -107,7 +107,12 @@ function checkPoints() {
 
 // Re-color formerly brushed circles
 function reset() {
-  d3.selectAll(".brushed").attr("class", "non-brushed").attr("fill", "black");
+  d3.selectAll("circle")
+    .attr("class", "non-brushed")
+    .attr("fill", "black")
+    .attr("r", 2)
+    .attr("opacity", globalOpacity);
+  d3.selectAll(".pointLabel").remove();
 }
 
 // Make random id strings
