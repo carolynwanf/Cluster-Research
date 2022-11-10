@@ -78,6 +78,7 @@ function checkPoints() {
   var path = document.getElementById("lasso");
   let svg = document.getElementsByTagName("svg")[0];
   let brushedPoints = [];
+  let categorizedPoints = [];
   // d3.polygonContains(lassoPolygon, [x, y]);
   for (let [id, idInfo] of Object.entries(database)) {
     const point = svg.createSVGPoint();
@@ -88,6 +89,7 @@ function checkPoints() {
     if (path.isPointInFill(point)) {
       idInfo.id = id;
       brushedPoints.push(idInfo);
+      categorizedPoints.push([idInfo.label, 1]);
       // Change class and recolor points accordingly
       let selector = "#" + id;
       d3.selectAll(selector)
@@ -100,9 +102,9 @@ function checkPoints() {
 
           return color;
         });
-    }
+    } else categorizedPoints.push([idInfo.label, 0]);
   }
-  return brushedPoints;
+  return { brushedPoints: brushedPoints, categorizedPoints: categorizedPoints };
 }
 
 // Re-color formerly brushed circles

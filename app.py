@@ -48,6 +48,22 @@ def data():
     # df_dr.to_json('./frontend/data/snap_embedding.json', orient="split")
     return df_dr.to_json(orient="split")
 
+# Data categorization route
+@app.route("/categorize-data", methods=["POST"])
+def categorize():
+    parser = reqparse.RequestParser()
+    parser.add_argument('data', type=str)
+
+    args = parser.parse_args()
+
+    categorizedPoints = args['data']
+    
+    print(categorizedPoints, file=sys.stderr)
+
+    return "success"
+
+
+
 @app.route("/get-default-data", methods=["GET"])
 def defaultData():
     # SITE_ROOT = os.path.realpath(os.path.dirname(__file__))

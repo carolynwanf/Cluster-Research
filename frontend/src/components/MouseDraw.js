@@ -16,6 +16,8 @@ import "../App.css";
 import { RightPanel } from "./RightPanel.js";
 import axios from "axios";
 
+const localDevURL = "http://127.0.0.1:5000/";
+
 // Line element
 const Line = ({ points, drawing }) => {
   const line = useMemo(() => {
@@ -82,8 +84,23 @@ export const MouseDraw = ({ x, y, width, height }) => {
   function disableDrawing() {
     setDrawing(false);
     // Check if points are in path on mouseup
-    setSelectedPoints(checkPoints());
-    // TODO: send points to back
+    let { brushedPoints, categorizedPoints } = checkPoints();
+
+    // Send brushed points to right panel
+    setSelectedPoints(brushedPoints);
+
+    // Send categorized points to back for linear classification
+    axios
+      .post(localDevURL + "categorize-data", {
+        data: JSON.stringify(categorizedPoints),
+      })
+      .then((response) => {
+        console.log("Categorized!");
+        // TODO: do things with response
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   }
 
   function handleMouseOver(e) {
