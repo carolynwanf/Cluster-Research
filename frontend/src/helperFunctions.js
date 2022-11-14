@@ -140,7 +140,6 @@ function highlightLabel(event) {
     .attr("opacity", globalOpacity)
     .attr("class", "brushed")
     .attr("r", 2);
-  console.log("highlighting", event.target.id);
   let ids = event.target.id.split(" ");
 
   // Highlight labels corresponding to ids
@@ -165,7 +164,6 @@ function drawToolTip(id, width) {
   if (pointInfo.cx > width / 2) {
     flip = true;
   }
-  console.log(flip, width);
 
   // Draw tooltip of label text with rectangular border
   // g element to hold the rect and text
@@ -190,7 +188,6 @@ function drawToolTip(id, width) {
     .attr("id", "toyText");
 
   let lines = wrap(toytext, toolTipWidth - 2 * rectPadding);
-  console.log(lines);
 
   d3.select("#toyText").remove();
 

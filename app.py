@@ -24,26 +24,37 @@ def data():
     parser.add_argument('data', type=str)
     parser.add_argument('reductionMethod', type=str)
     parser.add_argument('perplexity', type=int)
+    parser.add_argument('selectedCol', type=str)
 
     args = parser.parse_args()
 
     data = args['data']
     reductionMethod = args['reductionMethod']
+    selectedCol = args['selectedCol']
 
     #df has text as metadata and other features 
     df = pd.read_csv(io.StringIO(data),sep=",", header=0)
+
+    # extracting column with color information from df
+    if selectedCol != "none":
+        print("dropping")
+        colorByCol = df.loc[:,selectedCol]
+        df = df.drop(selectedCol, axis=1)
+    
+    print(colorByCol, file=sys.stderr)
     
     # Check reduction method
     if reductionMethod == "TSNE":
         perplexity = args['perplexity']
         #This performs dimensionality reduction, for now fixed perplexity but could be changed later
-        X_embedded = TSNE(n_components=2, perplexity=perplexity, verbose=True).fit_transform(df.drop(columns = 'text').values)
+        X_embedded = TSNE(n_components=2, perplexity=perplexity, verbose=True).fit_transform(df.drop(columns = ['text']).values)
     else:
          X_embedded = umap.UMAP(n_components=2).fit_transform(df.drop(columns = 'text').values)
     
-    #Converting the x,y,labels into dataframe again
+    #Converting the x,y,labels,color into dataframe again
     df_dr = pd.DataFrame(X_embedded,columns=['x', 'y'])
     df_dr['label'] = df['text']
+    df_dr['color'] = colorByCol
 
     # df_dr.to_json('./frontend/data/snap_embedding.json', orient="split")
     return df_dr.to_json(orient="split")
@@ -57,8 +68,6 @@ def categorize():
     args = parser.parse_args()
 
     categorizedPoints = args['data']
-    
-    print(categorizedPoints, file=sys.stderr)
 
     return "success"
 

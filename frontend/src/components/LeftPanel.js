@@ -8,6 +8,7 @@ import axios from "axios";
 import { drawGraph, clearSVG, changeOpacity } from "../helperFunctions.js";
 import Slider from "@mui/material/Slider";
 import CircularProgress from "@mui/material/CircularProgress";
+import MenuItem from "@mui/material/MenuItem";
 
 const localDevURL = "http://127.0.0.1:5000/";
 
@@ -25,7 +26,14 @@ export const LeftPanel = ({ width, height }) => {
   const [opacity, setOpacity] = useState(50);
   const [reductionMethod, setReductionMethod] = useState("TSNE");
   const [perplexity, setPerplexity] = useState(50);
-  const [loadingData, setLoadingData] = useState(false);
+  const [loadingData, setLoadingData] = useState(false); // reset on error
+  const [csvOutput, setCsvOutput] = useState(""); // reset
+  const [csvColumns, setCsvColumns] = useState([
+    <option key="none" value="none">
+      no file uploaded
+    </option>,
+  ]); //reset
+  const [selectedCol, setSelectedCol] = useState("none"); // reset
 
   // File reader
   const fileReader = new FileReader();
@@ -33,6 +41,38 @@ export const LeftPanel = ({ width, height }) => {
   // Set file on file upload
   const handleFileChange = (e) => {
     setFile(e.target.files[0]);
+
+    // Uses first row from CSV to create dropdown of column names
+    let rows;
+    fileReader.onload = function (event) {
+      setCsvOutput(event.target.result);
+
+      rows = event.target.result.split("\n");
+
+      let colNames = rows[0].split(",");
+
+      let colItems = [
+        <option key="select-a-column" value="select-a-column">
+          select a column
+        </option>,
+      ];
+
+      for (let colName of colNames) {
+        colItems.push(
+          <option key={colName} value={colName}>
+            {colName}
+          </option>
+        );
+      }
+      setCsvColumns(colItems);
+      setSelectedCol("none");
+    };
+
+    fileReader.readAsText(e.target.files[0]);
+  };
+
+  const handleColChange = (e) => {
+    setSelectedCol(e.target.value);
   };
 
   // Handle file projection
@@ -42,31 +82,31 @@ export const LeftPanel = ({ width, height }) => {
     // Submits post request if there is not a request already being processed
     if (file && !loadingData) {
       setLoadingData(true);
-      fileReader.onload = function (event) {
-        const csvOutput = event.target.result;
-        console.log("reductionMethod", reductionMethod);
 
-        let req = { data: csvOutput, reductionMethod: reductionMethod };
-
-        // Constructing request based on reduction Method
-        if (reductionMethod === "TSNE") {
-          req.perplexity = perplexity;
-        }
-        axios
-          .post(localDevURL + "upload-data", req)
-          .then((response) => {
-            console.log("SUCCESS", response.data.data);
-            let dataToPlot = response.data.data;
-            clearSVG();
-            drawGraph(width, height, dataToPlot);
-            setLoadingData(false);
-          })
-          .catch((error) => {
-            console.log(error);
-          });
+      let req = {
+        data: csvOutput,
+        reductionMethod: reductionMethod,
+        selectedCol: selectedCol,
       };
 
-      fileReader.readAsText(file);
+      // Constructing request based on reduction Method
+      if (reductionMethod === "TSNE") {
+        req.perplexity = perplexity;
+      }
+
+      axios
+        .post(localDevURL + "upload-data", req)
+        .then((response) => {
+          console.log("SUCCESS", response.data.data);
+          let dataToPlot = response.data.data;
+          clearSVG();
+          drawGraph(width, height, dataToPlot);
+          setLoadingData(false);
+        })
+        .catch((error) => {
+          console.log(error);
+          setLoadingData(false);
+        });
     } else if (!file) {
       alert("No file uploaded");
     }
@@ -120,7 +160,11 @@ export const LeftPanel = ({ width, height }) => {
       {/* File selection */}
       <Form.Group controlId="formFile" className="mb-3">
         <Form.Control type="file" accept=".csv" onChange={handleFileChange} />
+        <Form.Select aria-label="column-selection" onChange={handleColChange}>
+          {csvColumns}
+        </Form.Select>
       </Form.Group>
+
       {/* TODO: add column selector*/}
       {/* Dimensionality reduction method selection */}
       <Tabs

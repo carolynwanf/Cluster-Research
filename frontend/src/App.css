@@ -148,6 +148,10 @@ p.title {
   font-weight:600;
 }
 
+select {
+  margin-top:0.5em;
+}
+
 /* Right panel */
 .right {
   position:fixed;
