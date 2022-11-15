@@ -78,7 +78,7 @@ def categorize():
     df = pd.DataFrame(literal_eval(categorizedPoints), columns = ['0','1'])
 
     #Make a list of all possible words in the text, currently capped at 100,000
-    vectorizer = CountVectorizer(max_features=100000)
+    vectorizer = CountVectorizer(max_features=100000,token_pattern=r"(?u)\b\w\w+\b|!|\?|\"|\'")
     BOW = vectorizer.fit_transform(df['0'])
 
     #Fit a linear Classifier
