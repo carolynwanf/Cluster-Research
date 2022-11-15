@@ -1,5 +1,7 @@
 import * as d3 from "d3";
+import { color } from "d3";
 
+// TODO FIX originalColor bug
 // Storing state location data for quicker access
 /*
   Schema:
@@ -14,6 +16,7 @@ import * as d3 from "d3";
   */
 
 let database = {};
+let colorMap = {};
 let globalOpacity = 0.5;
 
 function clearSVG() {
@@ -44,8 +47,13 @@ function drawGraph(width, height, dataFromFront) {
   // SVG
   var svg = d3.select("#containerSVG");
 
-  // Re-setting database and using uploaded data to draw when data has been loaded
+  // Re-setting database and colorMap and using uploaded data to draw when data has been loaded
   database = {};
+  colorMap = {};
+
+  if (dataFromFront[0].length === 4) {
+    makeColorMap(dataFromFront);
+  }
 
   var d_extent_x = d3.extent(dataFromFront, (d) => +d[0]),
     d_extent_y = d3.extent(dataFromFront, (d) => +d[1]);
@@ -94,9 +102,23 @@ function drawGraph(width, height, dataFromFront) {
     .attr("class", "non-brushed");
 
   svg.append("g");
-  // console.log(database);
-
   return dataFromFront;
+}
+
+function makeColorMap(data) {
+  let uniqueCategories = new Set();
+  for (let item of data) {
+    if (uniqueCategories.has(item[3])) {
+      continue;
+    } else {
+      uniqueCategories.add(item[3]);
+    }
+  }
+
+  let categoriesArray = Array.from(uniqueCategories);
+  for (let i = 0; i < categoriesArray.length; i++) {
+    colorMap[categoriesArray[i]] = i % 7;
+  }
 }
 
 const colors = [
@@ -109,10 +131,10 @@ const colors = [
   "#8A5033",
 ];
 
-function assignColor(colorVal, id) {
-  database[id].category = colorVal;
-  database[id].originalColor = colors[colorVal % 7];
-  return colors[colorVal];
+function assignColor(category, id) {
+  database[id].category = category;
+  database[id].originalColor = colors[colorMap[category]];
+  return colors[colorMap[category]];
 }
 
 // Check if points are within path on mouseup
@@ -154,7 +176,11 @@ function reset() {
   d3.selectAll("circle")
     .attr("class", "non-brushed")
     .attr("fill", function () {
-      return database[d3.select(this).attr("id")].originalColor;
+      let color =
+        database[d3.select(this).attr("id")] === undefined
+          ? "black"
+          : database[d3.select(this).attr("id")].originalColor;
+      return color;
     })
     .attr("r", 2)
     .attr("opacity", globalOpacity);
@@ -201,7 +227,7 @@ function drawToolTip(id, width) {
   let pointInfo = database[id];
   let svg = d3.select("#containerSVG");
   let toolTipWidth = 340;
-  let rectPadding = 10;
+  let rectPadding = 1;
   let hasCategory = database[id].originalColor != "black" ? true : false;
 
   // If dot is on right side of screen, flip tooltip
@@ -221,10 +247,10 @@ function drawToolTip(id, width) {
   // Text
   let toytext = pointLabelContainer
     .append("text")
-    .text("item:" + pointInfo.label)
+    .text("item: " + pointInfo.label)
     .attr("x", () => {
       if (!flip) {
-        return 10 + rectPadding;
+        return rectPadding + "em";
       } else {
         return -toolTipWidth;
       }
@@ -239,7 +265,7 @@ function drawToolTip(id, width) {
   // Rect
   let toolTipHeight = 1.1 * (lines + 1) + 1;
   if (hasCategory) {
-    toolTipHeight = 1.1 * (lines + 3) + 1;
+    toolTipHeight = 1.1 * (lines + 4) + 1;
   }
   pointLabelContainer
     .append("rect")
@@ -250,7 +276,7 @@ function drawToolTip(id, width) {
         return -(toolTipWidth + 10);
       }
     })
-    .attr("y", -60)
+    .attr("y", -3 + "em")
     .attr("width", toolTipWidth)
     .attr("height", toolTipHeight + "em")
     .attr("fill", "white")
@@ -266,36 +292,36 @@ function drawToolTip(id, width) {
 
   pointLabelContainer
     .append("text")
-    .text("item:" + pointInfo.label)
+    .text("item: " + pointInfo.label)
     .attr("x", () => {
       if (!flip) {
-        return 10 + rectPadding;
+        return rectPadding + "em";
       } else {
         return -toolTipWidth;
       }
     })
-    .attr("y", -60 + rectPadding + 12)
+    .attr("y", -3 + rectPadding + 0.3 + "em")
     .style("z-index", "10")
     .attr("font-family", "Arial")
     .attr("fill", "black")
     .attr("stroke-width", "1px")
     .style("z-index", "10")
     .attr("vector-effect", "non-scaling-stroke")
-    .call(wrap, toolTipWidth - 2 * rectPadding);
+    .call(wrap, toolTipWidth - 2 * 10);
 
   // Add category information if has category
   if (hasCategory) {
     pointLabelContainer
       .append("text")
-      .text("category" + pointInfo.category)
+      .text("category: " + pointInfo.category)
       .attr("x", () => {
         if (!flip) {
-          return 10 + rectPadding;
+          return rectPadding + "em";
         } else {
           return -toolTipWidth;
         }
       })
-      .attr("y", toolTipHeight - 1.1 - 0.5)
+      .attr("y", -3 + toolTipHeight - 1.1 + "em")
       .style("z-index", "10")
       .attr("font-family", "Arial")
       .attr("fill", "black")

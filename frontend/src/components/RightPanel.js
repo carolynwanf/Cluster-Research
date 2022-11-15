@@ -24,8 +24,6 @@ export const RightPanel = ({ plotPoints, pathPoints }) => {
       counts[point.label].distFromCentroid = Math.sqrt(
         (point.cx - centroid.x) ** 2 + (point.cy - centroid.y) ** 2
       );
-
-      console.log(counts[point.label].distFromCentroid);
     }
 
     let countsArray = Object.entries(counts);

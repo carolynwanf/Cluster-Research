@@ -47,8 +47,6 @@ def data():
         colorByCol = df.loc[:,selectedCol]
         df = df.drop(selectedCol, axis=1)
 
-    print(colorByCol, file=sys.stderr)
-
     # Check reduction method
     if reductionMethod == "TSNE":
         perplexity = args['perplexity']

@@ -89,18 +89,20 @@ export const MouseDraw = ({ x, y, width, height }) => {
     // Send brushed points to right panel
     setSelectedPoints(brushedPoints);
 
-    // Send categorized points to back for linear classification
-    axios
-      .post(localDevURL + "categorize-data", {
-        data: JSON.stringify(categorizedPoints),
-      })
-      .then((response) => {
-        console.log("Categorized!");
-        // TODO: do things with response
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+    if (brushedPoints.length > 0) {
+      // Send categorized points to back for linear classification
+      axios
+        .post(localDevURL + "categorize-data", {
+          data: JSON.stringify(categorizedPoints),
+        })
+        .then((response) => {
+          console.log("Categorized!", response.data.data);
+          // TODO: do things with response
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    }
   }
 
   function handleMouseOver(e) {
