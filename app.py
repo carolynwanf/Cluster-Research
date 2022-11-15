@@ -62,14 +62,48 @@ def data():
 # Data categorization route
 @app.route("/categorize-data", methods=["POST"])
 def categorize():
+    
     parser = reqparse.RequestParser()
     parser.add_argument('data', type=str)
-
     args = parser.parse_args()
-
     categorizedPoints = args['data']
+    
+    df = pd.DataFrame(literal_eval(categorizedPoints), columns = ['0','1'])
+    
+    #Make a list of all possible words in the text, currently capped at 100,000
+    vectorizer = CountVectorizer(max_features=100000)
+    BOW = vectorizer.fit_transform(df['0'])
+    
+    #Fit a linear Classifier
+    x_train,x_test,y_train,y_test = train_test_split(BOW,np.asarray(df['1']))
+    model = SVC(kernel='linear')
+    model.fit(x_train,y_train)
+    coeffs = model.coef_.toarray()
+    
+    #Find ids for pos and negative coeffs
+    id_pos = coeffs[0]>0
+    id_neg = coeffs[0]<0
+    
+    #We're just taking 30 largest values
+    n_pos = heapq.nlargest(30, range(len(coeffs[0][id_pos])), coeffs[0][id_pos].take)
+    n_neg = heapq.nsmallest(30, range(len(coeffs[0][id_neg])), coeffs[0][id_neg].take)
+    
+    
+    pos_tokens = vectorizer.get_feature_names_out()[id_pos][n_pos]
+    pos_token_coeffs = coeffs[0][id_pos][n_pos]
+    
 
-    return "success"
+    neg_tokens = vectorizer.get_feature_names_out()[id_neg][n_neg]
+    neg_token_coeffs = coeffs[0][id_neg][n_neg]
+    
+    df_coefs = pd.DataFrame(list(zip(pos_tokens,pos_token_coeffs,neg_tokens,neg_token_coeffs)), 
+                            columns = ['pos_tokens', 'pos_coefs','neg_tokens','neg_coefs'])
+
+    
+    print(df_coefs)
+
+    return df_coefs.to_json(orient="split")
+
 
 
 
