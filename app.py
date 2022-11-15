@@ -9,6 +9,11 @@ import os
 from sklearn.manifold import TSNE
 import umap
 from ast import literal_eval
+from sklearn.model_selection import train_test_split
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.svm import SVC
+import numpy as np
+import heapq
 
 app = Flask(__name__, static_url_path='', static_folder='frontend/build')
 CORS(app)
@@ -33,7 +38,7 @@ def data():
     reductionMethod = args['reductionMethod']
     selectedCol = args['selectedCol']
 
-    #df has text as metadata and other features 
+    #df has text as metadata and other features
     df = pd.read_csv(io.StringIO(data),sep=",", header=0)
 
     # extracting column with color information from df
@@ -41,9 +46,9 @@ def data():
         print("dropping")
         colorByCol = df.loc[:,selectedCol]
         df = df.drop(selectedCol, axis=1)
-    
+
     print(colorByCol, file=sys.stderr)
-    
+
     # Check reduction method
     if reductionMethod == "TSNE":
         perplexity = args['perplexity']
@@ -51,7 +56,7 @@ def data():
         X_embedded = TSNE(n_components=2, perplexity=perplexity, verbose=True).fit_transform(df.drop(columns = ['text']).values)
     else:
          X_embedded = umap.UMAP(n_components=2).fit_transform(df.drop(columns = 'text').values)
-    
+
     #Converting the x,y,labels,color into dataframe again
     df_dr = pd.DataFrame(X_embedded,columns=['x', 'y'])
     df_dr['label'] = df['text']
@@ -64,44 +69,44 @@ def data():
 # Data categorization route
 @app.route("/categorize-data", methods=["POST"])
 def categorize():
-    
+
     parser = reqparse.RequestParser()
     parser.add_argument('data', type=str)
     args = parser.parse_args()
     categorizedPoints = args['data']
-    
+
     df = pd.DataFrame(literal_eval(categorizedPoints), columns = ['0','1'])
-    
+
     #Make a list of all possible words in the text, currently capped at 100,000
     vectorizer = CountVectorizer(max_features=100000)
     BOW = vectorizer.fit_transform(df['0'])
-    
+
     #Fit a linear Classifier
     x_train,x_test,y_train,y_test = train_test_split(BOW,np.asarray(df['1']))
     model = SVC(kernel='linear')
     model.fit(x_train,y_train)
     coeffs = model.coef_.toarray()
-    
+
     #Find ids for pos and negative coeffs
     id_pos = coeffs[0]>0
     id_neg = coeffs[0]<0
-    
+
     #We're just taking 30 largest values
     n_pos = heapq.nlargest(30, range(len(coeffs[0][id_pos])), coeffs[0][id_pos].take)
     n_neg = heapq.nsmallest(30, range(len(coeffs[0][id_neg])), coeffs[0][id_neg].take)
-    
-    
+
+
     pos_tokens = vectorizer.get_feature_names_out()[id_pos][n_pos]
     pos_token_coeffs = coeffs[0][id_pos][n_pos]
-    
+
 
     neg_tokens = vectorizer.get_feature_names_out()[id_neg][n_neg]
     neg_token_coeffs = coeffs[0][id_neg][n_neg]
-    
-    df_coefs = pd.DataFrame(list(zip(pos_tokens,pos_token_coeffs,neg_tokens,neg_token_coeffs)), 
+
+    df_coefs = pd.DataFrame(list(zip(pos_tokens,pos_token_coeffs,neg_tokens,neg_token_coeffs)),
                             columns = ['pos_tokens', 'pos_coefs','neg_tokens','neg_coefs'])
 
-    
+
     print(df_coefs)
 
     return df_coefs.to_json(orient="split")
@@ -115,11 +120,10 @@ def defaultData():
     # json_url = os.path.join(SITE_ROOT, "static/data", "taiwan.json")
     data = json.load(open("./frontend/data/hp_embedding.json"))
     return data
-    
+
 
 
 
 # Run app in debug mode
-if __name__ == "__main__": 
+if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=5000)
-   
