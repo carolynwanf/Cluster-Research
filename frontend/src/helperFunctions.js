@@ -1,6 +1,18 @@
 import * as d3 from "d3";
 
 // Storing state location data for quicker access
+/*
+  Schema:
+  database = {
+    id: {
+      cx: float
+      cy: float
+      label: string
+      originalColor: color
+    }
+  }
+  */
+
 let database = {};
 let globalOpacity = 0.5;
 
@@ -12,6 +24,12 @@ function clearSVG() {
 }
 
 // Function to draw graph, called once at render time
+/*
+  Schema:
+  width = float
+  height = float
+  dataFromFront = [x, y, label, color(if color column selected)]
+*/
 function drawGraph(width, height, dataFromFront) {
   // Location var
   var margin = { top: 20, right: 0, bottom: 50, left: 85 },
@@ -49,21 +67,29 @@ function drawGraph(width, height, dataFromFront) {
     .enter()
     .append("circle")
     .attr("r", 2)
-    .attr("opacity", 0.5)
+    .attr("opacity", globalOpacity)
     .attr("id", (d) => {
-      let id = d[3];
+      let id = d[d.length - 1];
       database[id] = { label: d[2] };
       return id;
     })
     .attr("cx", (d) => {
       let centerX = x(+d[0]);
-      database[d[3]].cx = centerX;
+      database[d[d.length - 1]].cx = centerX;
       return centerX;
     })
     .attr("cy", (d) => {
       let centerY = y(+d[1]);
-      database[d[3]].cy = centerY;
+      database[d[d.length - 1]].cy = centerY;
       return centerY;
+    })
+    .attr("fill", (d) => {
+      if (d.length === 5) {
+        return assignColor(d[3], d[4]);
+      } else {
+        database[d[d.length - 1]].originalColor = "black";
+        return "black";
+      }
     })
     .attr("class", "non-brushed");
 
@@ -71,6 +97,22 @@ function drawGraph(width, height, dataFromFront) {
   // console.log(database);
 
   return dataFromFront;
+}
+
+const colors = [
+  "#7944AD",
+  "#44ADAD",
+  "#4469AD",
+  "#AD446E",
+  "#AD4445",
+  "#44AD85",
+  "#8A5033",
+];
+
+function assignColor(colorVal, id) {
+  database[id].category = colorVal;
+  database[id].originalColor = colors[colorVal % 7];
+  return colors[colorVal];
 }
 
 // Check if points are within path on mouseup
@@ -95,7 +137,7 @@ function checkPoints() {
       d3.selectAll(selector)
         .attr("class", "brushed")
         .attr("fill", (d, i, elements) => {
-          let color = "black";
+          let color = database[id].originalColor;
           if (d3.select(elements[i]).attr("class") === "brushed") {
             color = "orange";
           }
@@ -111,7 +153,9 @@ function checkPoints() {
 function reset() {
   d3.selectAll("circle")
     .attr("class", "non-brushed")
-    .attr("fill", "black")
+    .attr("fill", function () {
+      return database[d3.select(this).attr("id")].originalColor;
+    })
     .attr("r", 2)
     .attr("opacity", globalOpacity);
   d3.selectAll(".pointLabel").remove();
@@ -158,6 +202,7 @@ function drawToolTip(id, width) {
   let svg = d3.select("#containerSVG");
   let toolTipWidth = 340;
   let rectPadding = 10;
+  let hasCategory = database[id].originalColor != "black" ? true : false;
 
   // If dot is on right side of screen, flip tooltip
   let flip = false;
@@ -176,7 +221,7 @@ function drawToolTip(id, width) {
   // Text
   let toytext = pointLabelContainer
     .append("text")
-    .text(pointInfo.label)
+    .text("item:" + pointInfo.label)
     .attr("x", () => {
       if (!flip) {
         return 10 + rectPadding;
@@ -193,6 +238,9 @@ function drawToolTip(id, width) {
 
   // Rect
   let toolTipHeight = 1.1 * (lines + 1) + 1;
+  if (hasCategory) {
+    toolTipHeight = 1.1 * (lines + 3) + 1;
+  }
   pointLabelContainer
     .append("rect")
     .attr("x", () => {
@@ -218,7 +266,7 @@ function drawToolTip(id, width) {
 
   pointLabelContainer
     .append("text")
-    .text(pointInfo.label)
+    .text("item:" + pointInfo.label)
     .attr("x", () => {
       if (!flip) {
         return 10 + rectPadding;
@@ -234,6 +282,27 @@ function drawToolTip(id, width) {
     .style("z-index", "10")
     .attr("vector-effect", "non-scaling-stroke")
     .call(wrap, toolTipWidth - 2 * rectPadding);
+
+  // Add category information if has category
+  if (hasCategory) {
+    pointLabelContainer
+      .append("text")
+      .text("category" + pointInfo.category)
+      .attr("x", () => {
+        if (!flip) {
+          return 10 + rectPadding;
+        } else {
+          return -toolTipWidth;
+        }
+      })
+      .attr("y", toolTipHeight - 1.1 - 0.5)
+      .style("z-index", "10")
+      .attr("font-family", "Arial")
+      .attr("fill", "black")
+      .attr("stroke-width", "1px")
+      .style("z-index", "10")
+      .attr("vector-effect", "non-scaling-stroke");
+  }
 }
 
 // Function for wrapping svg text elements
@@ -290,7 +359,7 @@ function eraseToolTip(id) {
       } else if (className === "brushed selected") {
         return "green";
       } else {
-        return "black";
+        return database[id].originalColor;
       }
     })
     .attr("opacity", () => {

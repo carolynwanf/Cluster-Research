@@ -8,6 +8,7 @@ import io
 import os
 from sklearn.manifold import TSNE
 import umap
+from ast import literal_eval
 
 app = Flask(__name__, static_url_path='', static_folder='frontend/build')
 CORS(app)
@@ -54,7 +55,8 @@ def data():
     #Converting the x,y,labels,color into dataframe again
     df_dr = pd.DataFrame(X_embedded,columns=['x', 'y'])
     df_dr['label'] = df['text']
-    df_dr['color'] = colorByCol
+    if selectedCol != "none":
+        df_dr['color'] = colorByCol
 
     # df_dr.to_json('./frontend/data/snap_embedding.json', orient="split")
     return df_dr.to_json(orient="split")
