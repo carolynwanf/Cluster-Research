@@ -159,6 +159,14 @@ select {
   overflow: scroll;
 }
 
+#pos-cloud-div, #neg-cloud-div {
+  margin-top:1em;
+}
+
+svg#positive-cloud, svg#negative-cloud {
+  background-color: white;
+}
+
 .footerSpacing {
   height: 10%;
 }
@@ -168,7 +176,7 @@ select {
 }
 
 .tableDiv {
-  height:50%;
+  height:35%;
   overflow:scroll;
 }
 

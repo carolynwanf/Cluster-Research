@@ -1,7 +1,6 @@
 import "../App.css";
 import { useState } from "react";
 import Table from "react-bootstrap/Table";
-import Button from "react-bootstrap/Button";
 import { highlightLabel, getCentroid } from "../helperFunctions.js";
 
 // Analysis panel for displaying info
@@ -65,6 +64,12 @@ export const RightPanel = ({ plotPoints, pathPoints }) => {
           </thead>
           <tbody>{selectedItems}</tbody>
         </Table>
+      </div>
+      <div id="pos-cloud-div">
+        <p className="title">Positively associated words</p>
+      </div>
+      <div id="neg-cloud-div">
+        <p className="title">Negatively associated words</p>
       </div>
       <div className="footerSpacing"></div>
     </div>

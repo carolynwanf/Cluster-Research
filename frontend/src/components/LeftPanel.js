@@ -53,7 +53,10 @@ export const LeftPanel = ({ width, height }) => {
 
       let colItems = [
         <option key="select-a-column" value="select-a-column">
-          select a column
+          select a column to color dots by
+        </option>,
+        <option key="none" value="none">
+          none
         </option>,
       ];
 

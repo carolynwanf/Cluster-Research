@@ -15,6 +15,7 @@ import {
 import "../App.css";
 import { RightPanel } from "./RightPanel.js";
 import axios from "axios";
+import { drawClouds } from "../cloudFunctions.js";
 
 const localDevURL = "http://127.0.0.1:5000/";
 
@@ -97,6 +98,7 @@ export const MouseDraw = ({ x, y, width, height }) => {
         })
         .then((response) => {
           console.log("Categorized!", response.data.data);
+          drawClouds(response.data.data);
           // TODO: do things with response
         })
         .catch((error) => {

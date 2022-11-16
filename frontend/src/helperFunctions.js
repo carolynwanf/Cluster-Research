@@ -1,5 +1,4 @@
 import * as d3 from "d3";
-import { color } from "d3";
 
 // TODO FIX originalColor bug
 // Storing state location data for quicker access
@@ -173,6 +172,8 @@ function checkPoints() {
 
 // Re-color formerly brushed circles
 function reset() {
+  d3.select("#positive-cloud").remove();
+  d3.select("#negative-cloud").remove();
   d3.selectAll("circle")
     .attr("class", "non-brushed")
     .attr("fill", function () {
