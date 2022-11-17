@@ -22,25 +22,47 @@ const LoadDataCircle = ({ loadingData }) => {
 
 // Data upload + control panel
 export const LeftPanel = ({ width, height }) => {
-  const [file, setFile] = useState();
+  const [rawFile, setRawFile] = useState(); // File that hasn't been projected yet
+  const [plottedData, setPlottedData] = useState([]); // Holds data that's currently plotted
+  const [projectedFileData, setProjectedFileData] = useState([]); // Holds previously projected data that's being uploaded
   const [opacity, setOpacity] = useState(50);
   const [reductionMethod, setReductionMethod] = useState("TSNE");
   const [perplexity, setPerplexity] = useState(50);
-  const [loadingData, setLoadingData] = useState(false); // reset on error
-  const [csvOutput, setCsvOutput] = useState(""); // reset
+  const [loadingData, setLoadingData] = useState(false);
+  const [csvOutput, setCsvOutput] = useState("");
   const [csvColumns, setCsvColumns] = useState([
     <option key="none" value="none">
       no file uploaded
     </option>,
   ]); //reset
-  const [selectedCol, setSelectedCol] = useState("none"); // reset
+  const [selectedCol, setSelectedCol] = useState("none");
 
   // File reader
   const fileReader = new FileReader();
 
-  // Set file on file upload
-  const handleFileChange = (e) => {
-    setFile(e.target.files[0]);
+  // Set projected file on projected file upload
+  const handleProjectedFileChange = (e) => {
+    fileReader.onload = function (event) {
+      setProjectedFileData(JSON.parse(event.target.result));
+    };
+
+    fileReader.readAsText(e.target.files[0]);
+  };
+
+  // For plotting previously projected data
+  const handleFilePlot = (e) => {
+    // Clears svg and plots new data if there is new data
+    if (projectedFileData.length > 0) {
+      clearSVG();
+      setPlottedData(projectedFileData);
+      drawGraph(width, height, projectedFileData);
+      setProjectedFileData([]);
+    }
+  };
+
+  // Set raw file on raw file upload
+  const handleRawFileChange = (e) => {
+    setRawFile(e.target.files[0]);
 
     // Uses first row from CSV to create dropdown of column names
     let rows;
@@ -83,7 +105,7 @@ export const LeftPanel = ({ width, height }) => {
     e.preventDefault();
 
     // Submits post request if there is not a request already being processed
-    if (file && !loadingData) {
+    if (rawFile && !loadingData) {
       setLoadingData(true);
 
       let req = {
@@ -103,6 +125,7 @@ export const LeftPanel = ({ width, height }) => {
           console.log("SUCCESS", response.data.data);
           let dataToPlot = response.data.data;
           clearSVG();
+          setPlottedData(dataToPlot);
           drawGraph(width, height, dataToPlot);
           setLoadingData(false);
         })
@@ -110,14 +133,21 @@ export const LeftPanel = ({ width, height }) => {
           console.log(error);
           setLoadingData(false);
         });
-    } else if (!file) {
+    } else if (!rawFile) {
       alert("No file uploaded");
     }
   };
 
-  // Handle cached projection
-  const handleCachedProject = (e) => {
-    // TODO: handle!!
+  // Handles save of currently projected data
+  const handleProjectionSave = (e) => {
+    const jsonString = `data:text/json;chatset=utf-8,${encodeURIComponent(
+      JSON.stringify(plottedData)
+    )}`;
+    console.log(plottedData);
+    const link = document.createElement("a");
+    link.href = jsonString;
+    link.download = "data.json";
+    link.click();
   };
 
   // SLIDERS
@@ -149,7 +179,7 @@ export const LeftPanel = ({ width, height }) => {
       .then((response) => {
         console.log("SUCCESS", response.data.data);
         let dataToPlot = response.data.data;
-
+        setPlottedData(dataToPlot);
         drawGraph(width, height, dataToPlot);
       })
       .catch((error) => {
@@ -162,7 +192,11 @@ export const LeftPanel = ({ width, height }) => {
       <p className="title">Upload Data</p>
       {/* File selection */}
       <Form.Group controlId="formFile" className="mb-3">
-        <Form.Control type="file" accept=".csv" onChange={handleFileChange} />
+        <Form.Control
+          type="file"
+          accept=".csv"
+          onChange={handleRawFileChange}
+        />
         <Form.Select aria-label="column-selection" onChange={handleColChange}>
           {csvColumns}
         </Form.Select>
@@ -207,17 +241,21 @@ export const LeftPanel = ({ width, height }) => {
       <hr />
       {/* Use previously cached projection */}
       <p className="title">See a Previous Projection</p>
-      <Form.Group controlId="formFile" className="mb-3">
-        {/* TODO: add dropdown linked to local storage */}
+      <Form.Group controlId="previousProjectionFile" className="mb-3">
+        <Form.Control
+          type="file"
+          accept=".json"
+          onChange={handleProjectedFileChange}
+        />
       </Form.Group>
       <Button
         id="cachedDataButton"
         variant="secondary"
         onClick={(e) => {
-          handleCachedProject(e);
+          handleFilePlot(e);
         }}
       >
-        project
+        plot
       </Button>
       <hr />
 
@@ -235,6 +273,15 @@ export const LeftPanel = ({ width, height }) => {
         />
         <p className="paramValue">{opacity}</p>
       </div>
+      <Button
+        id="saveProjectionButton"
+        variant="secondary"
+        onClick={(e) => {
+          handleProjectionSave(e);
+        }}
+      >
+        save projection
+      </Button>
     </div>
   );
 };

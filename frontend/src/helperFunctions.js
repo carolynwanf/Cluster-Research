@@ -33,6 +33,7 @@ function clearSVG() {
   dataFromFront = [x, y, label, color(if color column selected)]
 */
 function drawGraph(width, height, dataFromFront) {
+  let data = JSON.parse(JSON.stringify(dataFromFront));
   // Location var
   var margin = { top: 20, right: 0, bottom: 50, left: 85 },
     svg_dx = width,
@@ -50,19 +51,19 @@ function drawGraph(width, height, dataFromFront) {
   database = {};
   colorMap = {};
 
-  if (dataFromFront[0].length === 4) {
-    makeColorMap(dataFromFront);
+  if (data[0].length === 4) {
+    makeColorMap(data);
   }
 
-  var d_extent_x = d3.extent(dataFromFront, (d) => +d[0]),
-    d_extent_y = d3.extent(dataFromFront, (d) => +d[1]);
+  var d_extent_x = d3.extent(data, (d) => +d[0]),
+    d_extent_y = d3.extent(data, (d) => +d[1]);
 
   // Draw axes
   x.domain(d_extent_x);
   y.domain(d_extent_y);
 
   // Generate IDs for points
-  for (let row of dataFromFront) {
+  for (let row of data) {
     row.push(makeid(10));
   }
 
@@ -70,7 +71,7 @@ function drawGraph(width, height, dataFromFront) {
   svg
     .append("g")
     .selectAll("circle")
-    .data(dataFromFront)
+    .data(data)
     .enter()
     .append("circle")
     .attr("r", 2)
@@ -101,7 +102,7 @@ function drawGraph(width, height, dataFromFront) {
     .attr("class", "non-brushed");
 
   svg.append("g");
-  return dataFromFront;
+  return data;
 }
 
 function makeColorMap(data) {
