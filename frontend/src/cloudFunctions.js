@@ -4,7 +4,7 @@ import cloud from "d3-cloud";
 var drawnClouds = false;
 
 function drawClouds(words) {
-  let factor = 1.2 / words[0][1];
+  let factor = 1.1 / Math.sqrt(Math.max(words[0][1], Math.abs(words[0][3])));
   console.log(factor);
   // Removes previously drawn clouds
   if (drawnClouds) {
@@ -14,10 +14,13 @@ function drawClouds(words) {
     drawnClouds = true;
   }
   var positiveLayout = cloud()
-    .size([280, 250])
+    .size([180, 300])
     .words(
       words.map(function (d) {
-        return { text: d[0], size: Math.sqrt(Math.abs(d[1]) * factor) * 20 };
+        return {
+          text: d[0],
+          size: Math.sqrt(Math.abs(d[1])) * factor * 20,
+        };
       })
     )
     .padding(2)
@@ -33,7 +36,7 @@ function drawClouds(words) {
   positiveLayout.start();
 
   function drawPositive(words) {
-    d3.select("#pos-cloud-div")
+    d3.select("#positive-cloud-div")
       .append("svg")
       .attr("id", "positive-cloud")
       .attr("width", positiveLayout.size()[0])
@@ -67,10 +70,13 @@ function drawClouds(words) {
   }
 
   var negativeLayout = cloud()
-    .size([280, 250])
+    .size([180, 300])
     .words(
       words.map(function (d) {
-        return { text: d[2], size: Math.sqrt(Math.abs(d[3]) * factor) * 20 };
+        return {
+          text: d[2],
+          size: Math.sqrt(Math.abs(d[3])) * factor * 20,
+        };
       })
     )
     .padding(2)
@@ -86,7 +92,7 @@ function drawClouds(words) {
   negativeLayout.start();
 
   function drawNegative(words) {
-    d3.select("#neg-cloud-div")
+    d3.select("#negative-cloud-div")
       .append("svg")
       .attr("id", "negative-cloud")
       .attr("width", negativeLayout.size()[0])

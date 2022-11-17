@@ -37,6 +37,10 @@
   }
 }
 
+p {
+  margin-bottom:0.5em;
+}
+
 svg {
 
 
@@ -157,11 +161,26 @@ select {
   position:fixed;
   right:0;
   overflow: scroll;
+  width:400px;
 }
 
-#pos-cloud-div, #neg-cloud-div {
-  margin-top:1em;
+#unique-items-div {
+  margin-top: 1em;
 }
+
+#cloud-div {
+  
+  display:flex;
+  width: 100%;
+}
+
+#positive-cloud-div {
+  margin-right:0.5em;
+  width:50%
+
+}
+
+
 
 svg#positive-cloud, svg#negative-cloud {
   background-color: white;

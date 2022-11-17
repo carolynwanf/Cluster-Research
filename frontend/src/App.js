@@ -7,7 +7,7 @@ import { LeftPanel } from "./components/LeftPanel.js";
 import { Header } from "./components/Navbar.js";
 
 function App() {
-  let width = window.innerWidth - 640;
+  let width = window.innerWidth - 720;
   let height = window.innerHeight - 50;
   return (
     <div className="App">

@@ -50,10 +50,23 @@ export const RightPanel = ({ plotPoints, pathPoints }) => {
 
   return (
     <div className="right panel">
-      <p className="title">
-        {selectedItems.length > 0 ? selectedItems.length + " total unique" : 0}{" "}
-        items
-      </p>
+      <p className="title">Associated words</p>
+      <div id="cloud-div">
+        <div id="positive-cloud-div">
+          <p>Positive</p>
+        </div>
+        <div id="negative-cloud-div">
+          <p>Negative</p>
+        </div>
+      </div>
+      <div id="unique-items-div">
+        <p className="title">
+          {selectedItems.length > 0
+            ? selectedItems.length + " total unique"
+            : 0}{" "}
+          items
+        </p>
+      </div>
       <div className="tableDiv">
         <Table bordered>
           <thead>
@@ -64,12 +77,6 @@ export const RightPanel = ({ plotPoints, pathPoints }) => {
           </thead>
           <tbody>{selectedItems}</tbody>
         </Table>
-      </div>
-      <div id="pos-cloud-div">
-        <p className="title">Positively associated words</p>
-      </div>
-      <div id="neg-cloud-div">
-        <p className="title">Negatively associated words</p>
       </div>
       <div className="footerSpacing"></div>
     </div>
