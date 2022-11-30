@@ -5,7 +5,12 @@ import Tab from "react-bootstrap/Tab";
 import Tabs from "react-bootstrap/Tabs";
 import Form from "react-bootstrap/Form";
 import axios from "axios";
-import { drawGraph, clearSVG, changeOpacity } from "../helperFunctions.js";
+import {
+  drawGraph,
+  clearSVG,
+  changeOpacity,
+  changeDotSize,
+} from "../helperFunctions.js";
 import Slider from "@mui/material/Slider";
 import CircularProgress from "@mui/material/CircularProgress";
 import MenuItem from "@mui/material/MenuItem";
@@ -26,6 +31,7 @@ export const LeftPanel = ({ width, height }) => {
   const [plottedData, setPlottedData] = useState([]); // Holds data that's currently plotted
   const [projectedFileData, setProjectedFileData] = useState([]); // Holds previously projected data that's being uploaded
   const [opacity, setOpacity] = useState(50);
+  const [dotSize, setDotSize] = useState(2);
   const [reductionMethod, setReductionMethod] = useState("TSNE");
   const [perplexity, setPerplexity] = useState(50);
   const [loadingData, setLoadingData] = useState(false);
@@ -164,6 +170,18 @@ export const LeftPanel = ({ width, height }) => {
     changeOpacity(opacity / 100);
   }, [opacity]);
 
+  // Handle dot size changes
+  const handleDotSizeChange = (event, newSize) => {
+    if (newSize !== dotSize) {
+      setDotSize(newSize);
+    }
+  };
+
+  useEffect(() => {
+    console.log("changing dot size", dotSize);
+    changeDotSize(dotSize);
+  }, [dotSize]);
+
   // Handle perplexity changes
   const handlePerplexityChange = (event, newPerplexity) => {
     if (newPerplexity !== perplexity) {
@@ -272,6 +290,19 @@ export const LeftPanel = ({ width, height }) => {
           max={100}
         />
         <p className="paramValue">{opacity}</p>
+      </div>
+      <div className="sliderBlock">
+        <p className="sliderLabel">Dot Size</p>
+        <Slider
+          aria-label="dot-size"
+          value={dotSize}
+          onChange={handleDotSizeChange}
+          step={0.5}
+          marks
+          min={0}
+          max={5}
+        />
+        <p className="paramValue">{dotSize}</p>
       </div>
       <Button
         id="saveProjectionButton"

@@ -17,6 +17,7 @@ import * as d3 from "d3";
 let database = {};
 let colorMap = {};
 let globalOpacity = 0.5;
+let globalDotSize = 2;
 
 function clearSVG() {
   // SVG
@@ -74,7 +75,7 @@ function drawGraph(width, height, dataFromFront) {
     .data(data)
     .enter()
     .append("circle")
-    .attr("r", 2)
+    .attr("r", globalDotSize)
     .attr("opacity", globalOpacity)
     .attr("id", (d) => {
       let id = d[d.length - 1];
@@ -117,18 +118,22 @@ function makeColorMap(data) {
 
   let categoriesArray = Array.from(uniqueCategories);
   for (let i = 0; i < categoriesArray.length; i++) {
-    colorMap[categoriesArray[i]] = i % 7;
+    colorMap[categoriesArray[i]] = i % 11;
   }
 }
 
 const colors = [
-  "#7944AD",
-  "#44ADAD",
-  "#4469AD",
-  "#AD446E",
-  "#AD4445",
-  "#44AD85",
-  "#8A5033",
+  "#8fd7ff",
+  "#71f5ac",
+  "#ff66ff",
+  "#feff70",
+  "#f7bf6d",
+  "#8faa6a",
+  "#ff7c78",
+  "#e14e3d",
+  "#ac8f4c",
+  "#003CFF",
+  "#9500F2",
 ];
 
 function assignColor(category, id) {
@@ -184,7 +189,7 @@ function reset() {
           : database[d3.select(this).attr("id")].originalColor;
       return color;
     })
-    .attr("r", 2)
+    .attr("r", globalDotSize)
     .attr("opacity", globalOpacity);
   d3.selectAll(".pointLabel").remove();
 }
@@ -204,6 +209,10 @@ function changeOpacity(opacity) {
   d3.selectAll("circle").attr("opacity", opacity);
   globalOpacity = opacity;
 }
+function changeDotSize(dotSize) {
+  d3.selectAll("circle").attr("r", dotSize);
+  globalDotSize = dotSize;
+}
 
 function highlightLabel(event) {
   // Reset previously highlighted labels
@@ -211,7 +220,7 @@ function highlightLabel(event) {
     .attr("fill", "orange")
     .attr("opacity", globalOpacity)
     .attr("class", "brushed")
-    .attr("r", 2);
+    .attr("r", globalDotSize);
   let ids = event.target.id.split(" ");
 
   // Highlight labels corresponding to ids
@@ -220,7 +229,7 @@ function highlightLabel(event) {
       .attr("fill", "green")
       .attr("class", "brushed selected")
       .attr("opacity", globalOpacity + 0.5)
-      .attr("r", 4);
+      .attr("r", globalDotSize + 2);
   }
 }
 
@@ -233,10 +242,13 @@ function drawToolTip(id, width) {
   let hasCategory = database[id].originalColor != "black" ? true : false;
 
   // If dot is on right side of screen, flip tooltip
-  let flip = false;
+  let leftflip = false;
   if (pointInfo.cx > width / 2) {
-    flip = true;
+    leftflip = true;
   }
+
+  // If dot is too high up, flip tooltip
+  let bottomflip = false;
 
   // Draw tooltip of label text with rectangular border
   // g element to hold the rect and text
@@ -251,7 +263,7 @@ function drawToolTip(id, width) {
     .append("text")
     .text("item: " + pointInfo.label)
     .attr("x", () => {
-      if (!flip) {
+      if (!leftflip) {
         return rectPadding + "em";
       } else {
         return -toolTipWidth;
@@ -266,19 +278,33 @@ function drawToolTip(id, width) {
 
   // Rect
   let toolTipHeight = 1.1 * (lines + 1) + 1;
+
+  // Flips tooltip if it's too close to the top
+  console.log(pointInfo.cy, toolTipHeight);
+  if (pointInfo.cy < 100) {
+    bottomflip = true;
+  }
+
   if (hasCategory) {
     toolTipHeight = 1.1 * (lines + 4) + 1;
   }
+
   pointLabelContainer
     .append("rect")
     .attr("x", () => {
-      if (!flip) {
+      if (!leftflip) {
         return 10;
       } else {
         return -(toolTipWidth + 10);
       }
     })
-    .attr("y", -3 + "em")
+    .attr("y", () => {
+      if (!bottomflip) {
+        return -3 + "em";
+      } else {
+        return 0;
+      }
+    })
     .attr("width", toolTipWidth)
     .attr("height", toolTipHeight + "em")
     .attr("fill", "white")
@@ -290,19 +316,25 @@ function drawToolTip(id, width) {
   d3.select("#" + id)
     .attr("fill", "green")
     .attr("opacity", globalOpacity + 0.5)
-    .attr("r", 4);
+    .attr("r", globalDotSize + 2);
 
   pointLabelContainer
     .append("text")
     .text("item: " + pointInfo.label)
     .attr("x", () => {
-      if (!flip) {
+      if (!leftflip) {
         return rectPadding + "em";
       } else {
         return -toolTipWidth;
       }
     })
-    .attr("y", -3 + rectPadding + 0.3 + "em")
+    .attr("y", () => {
+      if (!bottomflip) {
+        return -3 + rectPadding + 0.3 + "em";
+      } else {
+        return rectPadding + 0.3 + "em";
+      }
+    })
     .style("z-index", "10")
     .attr("font-family", "Arial")
     .attr("fill", "black")
@@ -317,13 +349,19 @@ function drawToolTip(id, width) {
       .append("text")
       .text("category: " + pointInfo.category)
       .attr("x", () => {
-        if (!flip) {
+        if (!leftflip) {
           return rectPadding + "em";
         } else {
           return -toolTipWidth;
         }
       })
-      .attr("y", -3 + toolTipHeight - 1.1 + "em")
+      .attr("y", () => {
+        if (!bottomflip) {
+          return -3 + toolTipHeight - 1.1 + "em";
+        } else {
+          return toolTipHeight - 1.1 + "em";
+        }
+      })
       .style("z-index", "10")
       .attr("font-family", "Arial")
       .attr("fill", "black")
@@ -401,11 +439,11 @@ function eraseToolTip(id) {
     })
     .attr("r", () => {
       if (className === "brushed") {
-        return 2;
+        return globalDotSize;
       } else if (className === "brushed selected") {
-        return 4;
+        return globalDotSize + 2;
       } else {
-        return 2;
+        return globalDotSize;
       }
     });
 }
@@ -440,6 +478,7 @@ export {
   reset,
   clearSVG,
   changeOpacity,
+  changeDotSize,
   highlightLabel,
   drawToolTip,
   eraseToolTip,

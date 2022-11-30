@@ -169,6 +169,7 @@ select {
 }
 
 #cloud-div {
+  height: 300px;
   
   display:flex;
   width: 100%;
@@ -182,9 +183,9 @@ select {
 
 
 
-svg#positive-cloud, svg#negative-cloud {
-  background-color: white;
-}
+/* svg#positive-cloud, svg#negative-cloud {
+  height: 300px;
+} */
 
 .footerSpacing {
   height: 10%;
@@ -210,8 +211,20 @@ path {
 /* Slider formatting */
 .sliderBlock {
   display:flex;
-  padding: 0.5em;
+  padding: 0 0.5em 0 0.5em;
   justify-content: space-between;
+}
+
+.sliderBlock p.sliderLabel {
+  width:50%;
+}
+
+.sliderBlock p {
+  width:25%;
+}
+
+Slider {
+  width:50%
 }
 
 div.sliderBlock p {
@@ -239,9 +252,9 @@ th {
   background-color: rgb(232, 243, 255);
 }
 
-Table {
+/* Table {
   background-color: white;
-}
+} */
 
 .submitButton {
   display:flex;
