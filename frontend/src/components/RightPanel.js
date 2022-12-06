@@ -50,14 +50,8 @@ export const RightPanel = ({ plotPoints, pathPoints }) => {
 
   return (
     <div className="right panel">
-      <p className="title">Associated words</p>
-      <div id="cloud-div">
-        <div id="positive-cloud-div">
-          <p>Positive</p>
-        </div>
-        <div id="negative-cloud-div">
-          <p>Negative</p>
-        </div>
+      <p className="title">Associated Trajectories</p>
+      <div id="traj-div">
       </div>
       <div id="unique-items-div">
         <p className="title">
@@ -66,17 +60,6 @@ export const RightPanel = ({ plotPoints, pathPoints }) => {
             : 0}{" "}
           items
         </p>
-      </div>
-      <div className="tableDiv">
-        <Table bordered>
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>item</th>
-            </tr>
-          </thead>
-          <tbody>{selectedItems}</tbody>
-        </Table>
       </div>
       <div className="footerSpacing"></div>
     </div>

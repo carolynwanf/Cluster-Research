@@ -11,6 +11,7 @@ import {
   reset,
   drawToolTip,
   eraseToolTip,
+  drawTrajectories,
 } from "../helperFunctions.js";
 import "../App.css";
 import { RightPanel } from "./RightPanel.js";
@@ -91,19 +92,14 @@ export const MouseDraw = ({ x, y, width, height }) => {
     setSelectedPoints(brushedPoints);
 
     if (brushedPoints.length > 0) {
-      // Send categorized points to back for linear classification
-      axios
-        .post(localDevURL + "categorize-data", {
-          data: JSON.stringify(categorizedPoints),
-        })
-        .then((response) => {
-          console.log("Categorized!", response.data.data);
-          drawClouds(response.data.data);
-          // TODO: do things with response
-        })
-        .catch((error) => {
-          console.log(error);
-        });
+        //plot trajectories
+        var trajectories = brushedPoints.map(function(value,index) { return JSON.parse(value['label']); });
+        console.log(trajectories)
+        drawTrajectories(trajectories)
+
+
+
+
     }
   }
 

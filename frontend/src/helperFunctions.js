@@ -472,6 +472,76 @@ function getCentroid(pts) {
   return { x: x / f, y: y / f };
 }
 
+
+
+var drawnTrajs= false;
+function drawTrajectories(trajectories){
+
+  if (drawnTrajs) {
+    d3.select("#traj-plots").remove();
+  } else {
+    drawnTrajs = true;
+  }
+  var trajLayout_size = [300, 300]
+
+  var y = d3.scaleLinear().domain([-10,10])
+    .range([-150,150]);
+
+  var x = d3.scaleLinear().domain([-10,10])
+    .range([-150,150]);
+
+  var svg = d3.select('#traj-div').append("svg").style('background-color', 'white')
+      .attr("id", "traj-plots")
+      .attr("width", trajLayout_size[0])
+      .attr("height", trajLayout_size[1])
+      .append("g")
+      .attr(
+        "transform",
+        "translate(" +
+        trajLayout_size[0] / 2 +
+          "," +
+          trajLayout_size[1] / 2 +
+          ")"
+          )
+
+       var clr = d3.interpolateRgb("red", "blue")
+        
+        trajectories.forEach(element => {
+
+
+          /*var line = d3.line()
+          .x(d => x(d[0]))
+          .y(d => y(d[1]))
+          (element.pts)
+
+          d3.select("#traj-plots")
+          .append("path")
+          .attr("d",line)
+          .attr('stroke', function(d) { return d.c; });
+          .attr('fill', 'none')*/
+
+          // Add dots
+          svg.append('g')
+          .selectAll("dot")
+          .data(element.pts)
+          .enter()
+          .append("circle")
+            .attr("cx", function (d) { return x(d[0]); } )
+            .attr("cy", function (d) { return y(d[1]); } )
+            .attr("r", 1.5)
+            .style("fill",function (d,i) { return clr(i/100); })
+
+
+        });
+
+          
+
+
+}
+
+
+
+
 export {
   drawGraph,
   checkPoints,
@@ -483,4 +553,6 @@ export {
   drawToolTip,
   eraseToolTip,
   getCentroid,
+  drawTrajectories,
+  
 };
