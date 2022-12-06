@@ -402,7 +402,7 @@ function wrap(text, width) {
           .attr("x", x)
           .attr("y", y)
           .attr("dy", ++lineNumber * lineHeight + dy + "em")
-          .text(word);
+          .text('Trajectory');
       }
     }
     lines = lineNumber;
@@ -484,10 +484,10 @@ function drawTrajectories(trajectories){
   }
   var trajLayout_size = [300, 300]
 
-  var y = d3.scaleLinear().domain([-10,10])
+  var y = d3.scaleLinear().domain([0,550])
     .range([-150,150]);
 
-  var x = d3.scaleLinear().domain([-10,10])
+  var x = d3.scaleLinear().domain([0,1000])
     .range([-150,150]);
 
   var svg = d3.select('#traj-div').append("svg").style('background-color', 'white')
@@ -504,22 +504,22 @@ function drawTrajectories(trajectories){
           ")"
           )
 
-       var clr = d3.interpolateRgb("red", "blue")
+       var clr = d3.interpolateRgb("blue", 'red')
         
         trajectories.forEach(element => {
 
 
-          /*var line = d3.line()
+          var line = d3.line()
           .x(d => x(d[0]))
           .y(d => y(d[1]))
           (element.pts)
 
-          d3.select("#traj-plots")
-          .append("path")
+          svg.append('g').append("path")
           .attr("d",line)
-          .attr('stroke', function(d) { return d.c; });
-          .attr('fill', 'none')*/
-
+          .attr('stroke', 'grey')
+          .attr('opacity',0.4)
+          .attr('fill', 'none')
+  
           // Add dots
           svg.append('g')
           .selectAll("dot")
@@ -529,8 +529,11 @@ function drawTrajectories(trajectories){
             .attr("cx", function (d) { return x(d[0]); } )
             .attr("cy", function (d) { return y(d[1]); } )
             .attr("r", 1.5)
-            .style("fill",function (d,i) { return clr(i/100); })
+            .style("fill",function (d,i) {return clr(i/21); })
 
+
+
+  
 
         });
 
