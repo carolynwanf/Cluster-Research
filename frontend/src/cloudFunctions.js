@@ -124,6 +124,11 @@ function drawClouds(words) {
         return d.text;
       });
   }
+
+  return {
+    positiveWords: [words[0][0], words[1][0], words[2][0]],
+    negativeWords: words[0][2],
+  };
 }
 
 export { drawClouds };

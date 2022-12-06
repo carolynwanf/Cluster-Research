@@ -39,6 +39,7 @@
 
 p {
   margin-bottom:0.5em;
+  font-size: 0.9em;
 }
 
 svg {
@@ -139,14 +140,24 @@ body {
 
 /* Left panel */
 .panel {
-  background-color: rgb(241, 241, 241);
-  border: 1px solid rgb(164, 164, 164);
+  background-color: rgb(250, 250, 250);
+  border: 1px solid rgb(205, 205, 205);
   width: 320px;
   height: 100vh;
   padding: 1em;
 }
 
-p.title {
+#saveProjectionButton {
+  margin-top:1em;
+}
+
+.title svg.help-icon {
+  margin-left: 0.25em;
+  color: grey;
+}
+
+.title {
+  display:flex;
   font-size:medium;
   text-transform: uppercase;
   font-weight:600;
@@ -164,8 +175,25 @@ select {
   width:400px;
 }
 
+.positive-mark-1 {
+  background-color:rgb(0, 94, 0);
+  color:white;
+}
+
+.positive-mark-2 {
+  background-color:rgb(96, 174, 96);
+}
+
+.positive-mark-3 {
+  background-color:rgb(212, 244, 212);
+}
+
+.negative-mark {
+  background-color:rgb(238, 130, 130);
+}
+
 #unique-items-div {
-  margin-top: 1em;
+  margin-top: 2em;
 }
 
 #cloud-div {
@@ -196,8 +224,12 @@ select {
 }
 
 .tableDiv {
-  height:35%;
+  height:40%;
   overflow:scroll;
+}
+
+tbody{
+  font-size:0.8em;
 }
 
 /* Disable scrolling */

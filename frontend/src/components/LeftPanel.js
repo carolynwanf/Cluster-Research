@@ -1,6 +1,7 @@
 import "../App.css";
 import { useState, useEffect } from "react";
 import Button from "react-bootstrap/Button";
+import ButtonGroup from "react-bootstrap/ButtonGroup";
 import Tab from "react-bootstrap/Tab";
 import Tabs from "react-bootstrap/Tabs";
 import Form from "react-bootstrap/Form";
@@ -13,7 +14,8 @@ import {
 } from "../helperFunctions.js";
 import Slider from "@mui/material/Slider";
 import CircularProgress from "@mui/material/CircularProgress";
-import MenuItem from "@mui/material/MenuItem";
+import { Info, QuestionCircle } from "react-bootstrap-icons";
+import { InfoTooltip } from "./InfoTooltip.js";
 
 const localDevURL = "http://127.0.0.1:5000/";
 
@@ -25,6 +27,40 @@ const LoadDataCircle = ({ loadingData }) => {
   }
 };
 
+const ReductionOptions = ({
+  reductionMethod,
+  perplexity,
+  perplexityChanger,
+}) => {
+  // Handle perplexity changes
+  const handlePerplexityChange = (event, newPerplexity) => {
+    if (newPerplexity !== perplexity) {
+      perplexityChanger(newPerplexity);
+    }
+  };
+
+  if (reductionMethod === "TSNE") {
+    return (
+      <div className="sliderBlock">
+        <p>Perlexity</p>
+        <Slider
+          size="small"
+          aria-label="perplexity"
+          value={perplexity}
+          onChange={handlePerplexityChange}
+          min={0}
+          max={100}
+        />
+        <p className="paramValue">{perplexity}</p>
+      </div>
+    );
+  } else if (reductionMethod === "UMAP") {
+    return <div></div>;
+  } else {
+    return <div></div>;
+  }
+};
+
 // Data upload + control panel
 export const LeftPanel = ({ width, height }) => {
   const [rawFile, setRawFile] = useState(); // File that hasn't been projected yet
@@ -32,16 +68,23 @@ export const LeftPanel = ({ width, height }) => {
   const [projectedFileData, setProjectedFileData] = useState([]); // Holds previously projected data that's being uploaded
   const [opacity, setOpacity] = useState(50);
   const [dotSize, setDotSize] = useState(2);
-  const [reductionMethod, setReductionMethod] = useState("TSNE");
+  const [reductionMethod, setReductionMethod] = useState("none");
   const [perplexity, setPerplexity] = useState(50);
   const [loadingData, setLoadingData] = useState(false);
   const [csvOutput, setCsvOutput] = useState("");
   const [csvColumns, setCsvColumns] = useState([
-    <option key="none" value="none">
-      no file uploaded
+    <option key="select-a-column" value="select-a-column">
+      select a column to color dots by
     </option>,
+    ,
   ]); //reset
   const [selectedCol, setSelectedCol] = useState("none");
+
+  // Help explanations
+  const uploadExplanation =
+    "Upload a CSV with columns corresponding to embedding dimensions and a column titled 'label' that contains the token names. To color the points using categorical information, include that column in the CSV and select it in the color selection dropdown below.";
+  const previousProjectionExplanation =
+    "Here, you can upload JSON files saved using the 'save projection' button below";
 
   // File reader
   const fileReader = new FileReader();
@@ -106,12 +149,16 @@ export const LeftPanel = ({ width, height }) => {
     setSelectedCol(e.target.value);
   };
 
+  const handleReductionMethodChange = (e) => {
+    setReductionMethod(e.target.value);
+  };
+
   // Handle file projection
   const handleFileProject = (e) => {
     e.preventDefault();
 
     // Submits post request if there is not a request already being processed
-    if (rawFile && !loadingData) {
+    if (rawFile && !loadingData && reductionMethod !== "none") {
       setLoadingData(true);
 
       let req = {
@@ -140,7 +187,10 @@ export const LeftPanel = ({ width, height }) => {
           setLoadingData(false);
         });
     } else if (!rawFile) {
-      alert("No file uploaded");
+      alert("please upload a file");
+    } else if (reductionMethod === "none") {
+      alert("please select a reduction method!");
+      return;
     }
   };
 
@@ -182,13 +232,6 @@ export const LeftPanel = ({ width, height }) => {
     changeDotSize(dotSize);
   }, [dotSize]);
 
-  // Handle perplexity changes
-  const handlePerplexityChange = (event, newPerplexity) => {
-    if (newPerplexity !== perplexity) {
-      setPerplexity(newPerplexity);
-    }
-  };
-
   // Draw graph ONCE when the component mounts
   useEffect(() => {
     console.log("running effect");
@@ -207,44 +250,55 @@ export const LeftPanel = ({ width, height }) => {
 
   return (
     <div className="left panel">
-      <p className="title">Upload Data</p>
+      <div className="title">
+        <p>Upload</p>
+        <InfoTooltip text={uploadExplanation} />
+      </div>
       {/* File selection */}
       <Form.Group controlId="formFile" className="mb-3">
         <Form.Control
+          class="form-control"
+          size="sm"
           type="file"
           accept=".csv"
           onChange={handleRawFileChange}
         />
-        <Form.Select aria-label="column-selection" onChange={handleColChange}>
+        <Form.Select
+          class="form-select"
+          size="sm"
+          aria-label="column-selection"
+          onChange={handleColChange}
+        >
           {csvColumns}
+        </Form.Select>
+        <Form.Select
+          class="form-select"
+          size="sm"
+          aria-label="column-selection"
+          onChange={handleReductionMethodChange}
+        >
+          <option key="none" value="none">
+            select a reduction method
+          </option>
+          <option key="TSNE" value="TSNE">
+            T-SNE
+          </option>
+          <option key="UMAP" value="UMAP">
+            UMAP
+          </option>
         </Form.Select>
       </Form.Group>
 
       {/* TODO: add column selector*/}
       {/* Dimensionality reduction method selection */}
-      <Tabs
-        activeKey={reductionMethod}
-        onSelect={(k) => setReductionMethod(k)}
-        id="dimentionalityTabs"
-        className="mb-3"
-      >
-        <Tab eventKey="TSNE" title="T-SNE">
-          <div className="sliderBlock">
-            <p>Perlexity</p>
-            <Slider
-              aria-label="perplexity"
-              value={perplexity}
-              onChange={handlePerplexityChange}
-              min={0}
-              max={100}
-            />
-            <p className="paramValue">{perplexity}</p>
-          </div>
-        </Tab>
-        <Tab eventKey="UMAP" title="UMAP"></Tab>
-      </Tabs>
+      <ReductionOptions
+        reductionMethod={reductionMethod}
+        perplexity={perplexity}
+        perplexityChanger={setPerplexity}
+      />
       <div className="submitButton">
         <Button
+          size="sm"
           id="dataUploadButton"
           variant="secondary"
           onClick={(e) => {
@@ -258,15 +312,21 @@ export const LeftPanel = ({ width, height }) => {
 
       <hr />
       {/* Use previously cached projection */}
-      <p className="title">See a Previous Projection</p>
+      <div className="title">
+        <p>See a Previous Projection</p>
+        <InfoTooltip text={previousProjectionExplanation} />
+      </div>
       <Form.Group controlId="previousProjectionFile" className="mb-3">
         <Form.Control
+          class="form-control"
+          size="sm"
           type="file"
           accept=".json"
           onChange={handleProjectedFileChange}
         />
       </Form.Group>
       <Button
+        size="sm"
         id="cachedDataButton"
         variant="secondary"
         onClick={(e) => {
@@ -281,6 +341,7 @@ export const LeftPanel = ({ width, height }) => {
       <div className="sliderBlock">
         <p>Opacity</p>
         <Slider
+          size="small"
           aria-label="opacity"
           value={opacity}
           onChange={handleOpacityChange}
@@ -294,6 +355,7 @@ export const LeftPanel = ({ width, height }) => {
       <div className="sliderBlock">
         <p className="sliderLabel">Dot Size</p>
         <Slider
+          size="small"
           aria-label="dot-size"
           value={dotSize}
           onChange={handleDotSizeChange}
@@ -305,6 +367,7 @@ export const LeftPanel = ({ width, height }) => {
         <p className="paramValue">{dotSize}</p>
       </div>
       <Button
+        size="sm"
         id="saveProjectionButton"
         variant="secondary"
         onClick={(e) => {

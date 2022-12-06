@@ -56,6 +56,10 @@ export const MouseDraw = ({ x, y, width, height }) => {
   const [drawing, setDrawing] = useState(false);
   const [currentLine, setCurrentLine] = useState({ points: [] });
   const [selectedPoints, setSelectedPoints] = useState([]);
+  const [topWords, setTopWords] = useState({
+    positiveWord: null,
+    negativeWord: null,
+  });
 
   const drawingAreaRef = useRef();
 
@@ -79,6 +83,7 @@ export const MouseDraw = ({ x, y, width, height }) => {
     setCurrentLine({ points: [] });
     setSelectedPoints([]);
     setDrawing(true);
+    setTopWords({ positiveWord: null, negativeWord: null });
   }
 
   // Adds the new line to the array of lines, stops drawing on mouseup
@@ -98,7 +103,8 @@ export const MouseDraw = ({ x, y, width, height }) => {
         })
         .then((response) => {
           console.log("Categorized!", response.data.data);
-          drawClouds(response.data.data);
+          let newTopWords = drawClouds(response.data.data);
+          setTopWords(newTopWords);
           // TODO: do things with response
         })
         .catch((error) => {
@@ -154,7 +160,11 @@ export const MouseDraw = ({ x, y, width, height }) => {
           <Line points={currentLine.points} drawing={drawing} />
         </g>
       </svg>
-      <RightPanel plotPoints={selectedPoints} pathPoints={currentLine.points} />
+      <RightPanel
+        plotPoints={selectedPoints}
+        pathPoints={currentLine.points}
+        topWords={topWords}
+      />
     </div>
   );
 };
