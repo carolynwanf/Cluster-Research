@@ -504,32 +504,62 @@ function drawTrajectories(trajectories){
           ")"
           )
 
-       var clr = d3.interpolateRgb("blue", 'red')
+       var clr = d3.interpolateRgb("lightblue", 'midnightblue')
         
         trajectories.forEach(element => {
 
 
-          var line = d3.line()
+          /*var line1 = d3.line()
           .x(d => x(d[0]))
           .y(d => y(d[1]))
-          (element.pts)
+          (element.pts1)
 
           svg.append('g').append("path")
-          .attr("d",line)
+          .attr("id", "mouse1-traj")
           .attr('stroke', 'grey')
+          .attr("d",line1)
           .attr('opacity',0.4)
-          .attr('fill', 'none')
+          .attr('fill', 'none')*/
   
           // Add dots
           svg.append('g')
           .selectAll("dot")
-          .data(element.pts)
+          .attr("id", "mouse1-pts")
+          .data(element.pts1)
           .enter()
           .append("circle")
             .attr("cx", function (d) { return x(d[0]); } )
             .attr("cy", function (d) { return y(d[1]); } )
             .attr("r", 1.5)
             .style("fill",function (d,i) {return clr(i/21); })
+
+
+
+            var clr2 = d3.interpolateRgb("pink", 'darkred')
+            /*var line2 = d3.line()
+            .x(d => x(d[0]))
+            .y(d => y(d[1]))
+            (element.pts2)
+  
+            svg.append('g').append("path")
+            .attr("id", "mouse2-traj")
+            .attr('stroke', 'grey')
+            .attr("d",line2)
+            .attr('opacity',0.4)
+            .attr('fill', 'none')*/
+    
+            // Add dots
+            svg.append('g')
+            .selectAll("dot")
+            .attr("id", "mouse2-pts")
+            .data(element.pts2)
+            .enter()
+            .append("circle")
+              .attr("cx", function (d) { return x(d[0]); } )
+              .attr("cy", function (d) { return y(d[1]); } )
+              .attr("r", 1.5)
+              .style("fill",function (d,i) {return clr2(i/21); })
+  
 
 
 
