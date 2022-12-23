@@ -1,9 +1,6 @@
 import "../App.css";
 import { useState, useEffect } from "react";
 import Button from "react-bootstrap/Button";
-import ButtonGroup from "react-bootstrap/ButtonGroup";
-import Tab from "react-bootstrap/Tab";
-import Tabs from "react-bootstrap/Tabs";
 import Form from "react-bootstrap/Form";
 import axios from "axios";
 import {
@@ -11,10 +8,9 @@ import {
   clearSVG,
   changeOpacity,
   changeDotSize,
-} from "../helperFunctions.js";
+} from "../d3-rendering/helperFunctions.js";
 import Slider from "@mui/material/Slider";
 import CircularProgress from "@mui/material/CircularProgress";
-import { Info, QuestionCircle } from "react-bootstrap-icons";
 import { InfoTooltip } from "./InfoTooltip.js";
 
 const localDevURL = "http://127.0.0.1:5000/";
@@ -84,7 +80,7 @@ export const LeftPanel = ({ width, height }) => {
   const uploadExplanation =
     "Upload a CSV with columns corresponding to embedding dimensions and a column titled 'label' that contains the token names. To color the points using categorical information, include that column in the CSV and select it in the color selection dropdown below.";
   const previousProjectionExplanation =
-    "Here, you can upload JSON files saved using the 'save projection' button below";
+    "Here, you can upload JSON files saved using the 'bookmark projection' button below";
 
   // File reader
   const fileReader = new FileReader();
@@ -199,7 +195,7 @@ export const LeftPanel = ({ width, height }) => {
     const jsonString = `data:text/json;chatset=utf-8,${encodeURIComponent(
       JSON.stringify(plottedData)
     )}`;
-    console.log(plottedData);
+    // console.log(plottedData);
     const link = document.createElement("a");
     link.href = jsonString;
     link.download = "data.json";
@@ -313,7 +309,7 @@ export const LeftPanel = ({ width, height }) => {
       <hr />
       {/* Use previously cached projection */}
       <div className="title">
-        <p>See a Previous Projection</p>
+        <p>See a Bookmarked Projection</p>
         <InfoTooltip text={previousProjectionExplanation} />
       </div>
       <Form.Group controlId="previousProjectionFile" className="mb-3">
@@ -325,16 +321,28 @@ export const LeftPanel = ({ width, height }) => {
           onChange={handleProjectedFileChange}
         />
       </Form.Group>
-      <Button
-        size="sm"
-        id="cachedDataButton"
-        variant="secondary"
-        onClick={(e) => {
-          handleFilePlot(e);
-        }}
-      >
-        plot
-      </Button>
+      <div className="button-box">
+        <Button
+          size="sm"
+          id="cachedDataButton"
+          variant="secondary"
+          onClick={(e) => {
+            handleFilePlot(e);
+          }}
+        >
+          project
+        </Button>
+        <Button
+          size="sm"
+          id="bookmarkButton"
+          variant="outline-secondary"
+          onClick={(e) => {
+            handleProjectionSave(e);
+          }}
+        >
+          bookmark projection
+        </Button>
+      </div>
       <hr />
 
       <p className="title"> Display settings</p>
@@ -366,16 +374,6 @@ export const LeftPanel = ({ width, height }) => {
         />
         <p className="paramValue">{dotSize}</p>
       </div>
-      <Button
-        size="sm"
-        id="saveProjectionButton"
-        variant="secondary"
-        onClick={(e) => {
-          handleProjectionSave(e);
-        }}
-      >
-        save projection
-      </Button>
     </div>
   );
 };

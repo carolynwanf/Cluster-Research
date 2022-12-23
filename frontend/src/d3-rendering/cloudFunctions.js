@@ -5,7 +5,6 @@ var drawnClouds = false;
 
 function drawClouds(words) {
   let factor = 1.1 / Math.sqrt(Math.max(words[0][1], Math.abs(words[0][3])));
-  console.log(factor);
   // Removes previously drawn clouds
   if (drawnClouds) {
     d3.select("#positive-cloud").remove();
@@ -13,6 +12,11 @@ function drawClouds(words) {
   } else {
     drawnClouds = true;
   }
+
+  // Removes placeholder images to get rid of jitter
+  // d3.select("#pos-placeholder").remove();
+  // d3.select("#neg-placeholder").remove();
+
   var positiveLayout = cloud()
     .size([180, 300])
     .words(

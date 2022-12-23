@@ -1,11 +1,31 @@
 import "../App.css";
 import { useState, useEffect } from "react";
 import Table from "react-bootstrap/Table";
-import { highlightLabel, getCentroid } from "../helperFunctions.js";
+import {
+  highlightLabel,
+  getCentroid,
+} from "../d3-rendering/helperFunctions.js";
 import { InfoTooltip } from "./InfoTooltip.js";
+import styled, { keyframes } from "styled-components";
+
+const breatheAnimation = keyframes`
+ 0% { opacity: 0.6; }
+ 50% { opacity: 1; }
+ 100% { opacity: 0.6; }`;
+
+const PlaceholderImage = styled.img`
+  animation-name: ${breatheAnimation};
+  animation-duration: 1.5s;
+  animation-iteration-count: infinite;
+`;
 
 // Analysis panel for displaying info
-export const RightPanel = ({ plotPoints, pathPoints, topWords }) => {
+export const RightPanel = ({
+  plotPoints,
+  pathPoints,
+  topWords,
+  wordsLoading,
+}) => {
   // console.log(topWords, plotPoints);
   const [selectedItems, setSelectedItems] = useState([]);
   const associatedWordsExplanation =
@@ -93,6 +113,7 @@ export const RightPanel = ({ plotPoints, pathPoints, topWords }) => {
     }
   }, [plotPoints, topWords]);
 
+  console.log(wordsLoading);
   return (
     <div className="right panel">
       <div className="title">
@@ -102,9 +123,23 @@ export const RightPanel = ({ plotPoints, pathPoints, topWords }) => {
       <div id="cloud-div">
         <div id="positive-cloud-div">
           <p>Inside</p>
+          {wordsLoading ? (
+            <PlaceholderImage
+              src="https://storage.googleapis.com/htw-website-uploads/Grey-placeholder-image2.jpg"
+              className="placeholder-image"
+              id="pos-placeholder"
+            />
+          ) : null}
         </div>
         <div id="negative-cloud-div">
           <p>Outside</p>
+          {wordsLoading ? (
+            <PlaceholderImage
+              src="https://storage.googleapis.com/htw-website-uploads/Grey-placeholder-image2.jpg"
+              className="placeholder-image"
+              id="neg-placeholder"
+            />
+          ) : null}
         </div>
       </div>
       <div id="unique-items-div">

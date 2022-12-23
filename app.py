@@ -1,11 +1,9 @@
 from multiprocessing import reduction
-from flask import Flask, render_template, request, redirect, url_for, send_from_directory, url_for, json
+from flask import Flask, send_from_directory, url_for, json
 from flask_cors import CORS #comment this on deployment
 from flask_restful import reqparse
-import sys
 import pandas as pd
 import io
-import os
 from sklearn.manifold import TSNE
 import umap
 from ast import literal_eval
@@ -23,7 +21,7 @@ CORS(app)
 def home():
     return send_from_directory(app.static_folder, "index.html")
 
-# Data uploading route
+# Performs selected dimensionality reduction method (reductionMethod) on uploaded data (data), considering selected parameters (perplexity, selectedCol)
 @app.route("/upload-data", methods=["POST"])
 def data():
     parser = reqparse.RequestParser()
@@ -43,7 +41,6 @@ def data():
 
     # extracting column with color information from df
     if selectedCol != "none":
-        print("dropping")
         colorByCol = df.loc[:,selectedCol]
         df = df.drop(selectedCol, axis=1)
 
@@ -61,10 +58,13 @@ def data():
     if selectedCol != "none":
         df_dr['color'] = colorByCol
 
-    # df_dr.to_json('./frontend/data/snap_embedding.json', orient="split")
     return df_dr.to_json(orient="split")
 
-# Data categorization route
+# Returns most 30 most positively and negatively associated words with being in a selected area using a linear classifier
+# Input schema: 
+#   [
+#       [label, categorization] # 1 if in selected area, 0 if not
+#   ]
 @app.route("/categorize-data", methods=["POST"])
 def categorize():
 
@@ -111,12 +111,10 @@ def categorize():
 
 
 
-
+# Populate center panel with default projection
 @app.route("/get-default-data", methods=["GET"])
 def defaultData():
-    # SITE_ROOT = os.path.realpath(os.path.dirname(__file__))
-    # json_url = os.path.join(SITE_ROOT, "static/data", "taiwan.json")
-    data = json.load(open("./frontend/data/hp_embedding.json"))
+    data = json.load(open("./datasets/hp_embedding.json"))
     return data
 
 

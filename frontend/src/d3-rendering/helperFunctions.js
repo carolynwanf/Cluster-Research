@@ -1,6 +1,5 @@
 import * as d3 from "d3";
 
-// TODO FIX originalColor bug
 // Storing state location data for quicker access
 /*
   Schema:
@@ -280,7 +279,6 @@ function drawToolTip(id, width) {
   let toolTipHeight = 1.1 * (lines + 1) + 1;
 
   // Flips tooltip if it's too close to the top
-  console.log(pointInfo.cy, toolTipHeight);
   if (pointInfo.cy < 100) {
     bottomflip = true;
   }

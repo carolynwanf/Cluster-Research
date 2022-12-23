@@ -11,11 +11,11 @@ import {
   reset,
   drawToolTip,
   eraseToolTip,
-} from "../helperFunctions.js";
+} from "../d3-rendering/helperFunctions.js";
 import "../App.css";
 import { RightPanel } from "./RightPanel.js";
 import axios from "axios";
-import { drawClouds } from "../cloudFunctions.js";
+import { drawClouds } from "../d3-rendering/cloudFunctions.js";
 
 const localDevURL = "http://127.0.0.1:5000/";
 
@@ -60,6 +60,7 @@ export const MouseDraw = ({ x, y, width, height }) => {
     positiveWord: null,
     negativeWord: null,
   });
+  const [wordsLoading, setWordsLoading] = useState(false);
 
   const drawingAreaRef = useRef();
 
@@ -97,6 +98,7 @@ export const MouseDraw = ({ x, y, width, height }) => {
 
     if (brushedPoints.length > 0) {
       // Send categorized points to back for linear classification
+      setWordsLoading(true);
       axios
         .post(localDevURL + "categorize-data", {
           data: JSON.stringify(categorizedPoints),
@@ -104,6 +106,7 @@ export const MouseDraw = ({ x, y, width, height }) => {
         .then((response) => {
           console.log("Categorized!", response.data.data);
           let newTopWords = drawClouds(response.data.data);
+          setWordsLoading(false);
           setTopWords(newTopWords);
           // TODO: do things with response
         })
@@ -164,6 +167,7 @@ export const MouseDraw = ({ x, y, width, height }) => {
         plotPoints={selectedPoints}
         pathPoints={currentLine.points}
         topWords={topWords}
+        wordsLoading={wordsLoading}
       />
     </div>
   );
