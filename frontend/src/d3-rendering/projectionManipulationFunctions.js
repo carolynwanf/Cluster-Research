@@ -13,36 +13,37 @@ import * as d3 from "d3";
   }
   */
 
-let database = {};
-let colorMap = {};
-let globalOpacity = 0.5;
-let globalDotSize = 2;
+// Global variables
+let database = {}; // Database of projected points
+let colorMap = {}; // Map of label --> color
+let globalOpacity = 0.5; // Default opacity
+let globalDotSize = 2; // Default dot size
 
+// Clears SVG in the center panel when new data is uploaded
 function clearSVG() {
-  // SVG
   var svg = d3.select("#containerSVG");
-  svg.selectAll("circle").remove();
-  svg.selectAll("#lasso").attr("d", "");
+  svg.selectAll("circle").remove(); // Removes plotted points
+  svg.selectAll("#lasso").attr("d", ""); // Resets lasso
 }
 
-// Function to draw graph, called once at render time
+// Function to draw projection, called once at render time and when new data is uploaded
 /*
   Schema:
   width = float
   height = float
-  dataFromFront = [x, y, label, color(if color column selected)]
+  uploadedData = [x, y, label, color(if color column selected)]
 */
-function drawGraph(width, height, dataFromFront) {
-  let data = JSON.parse(JSON.stringify(dataFromFront));
+function drawProjection(width, height, uploadedData) {
+  let data = JSON.parse(JSON.stringify(uploadedData));
   // Location var
-  var margin = { top: 20, right: 0, bottom: 50, left: 85 },
-    svg_dx = width,
-    svg_dy = height,
-    plot_dx = svg_dx - margin.right - margin.left,
-    plot_dy = svg_dy - margin.top - margin.bottom;
+  const MARGIN = { top: 20, right: 0, bottom: 50, left: 85 },
+    SVG_X = width,
+    SVG_Y = height,
+    PLOT_X = SVG_X - MARGIN.right - MARGIN.left,
+    PLOT_Y = SVG_Y - MARGIN.top - MARGIN.bottom;
 
-  var x = d3.scaleLinear().range([margin.left, plot_dx]),
-    y = d3.scaleLinear().range([plot_dy, margin.top]);
+  var x = d3.scaleLinear().range([MARGIN.left, PLOT_X]),
+    y = d3.scaleLinear().range([PLOT_Y, MARGIN.top]);
 
   // SVG
   var svg = d3.select("#containerSVG");
@@ -102,7 +103,7 @@ function drawGraph(width, height, dataFromFront) {
     .attr("class", "non-brushed");
 
   svg.append("g");
-  return data;
+  return colorMap;
 }
 
 function makeColorMap(data) {
@@ -117,11 +118,11 @@ function makeColorMap(data) {
 
   let categoriesArray = Array.from(uniqueCategories);
   for (let i = 0; i < categoriesArray.length; i++) {
-    colorMap[categoriesArray[i]] = i % 11;
+    colorMap[categoriesArray[i]] = COLORS[i % 11];
   }
 }
 
-const colors = [
+const COLORS = [
   "#8fd7ff",
   "#71f5ac",
   "#ff66ff",
@@ -137,8 +138,27 @@ const colors = [
 
 function assignColor(category, id) {
   database[id].category = category;
-  database[id].originalColor = colors[colorMap[category]];
-  return colors[colorMap[category]];
+  database[id].originalColor = colorMap[category];
+  return colorMap[category];
+}
+
+// Displays dots based on if the checkbox corresponding to their color is checked
+function toggleDotDisplay(checked, color) {
+  d3.selectAll("circle")
+    .filter(function () {
+      if (database[d3.select(this).attr("id")]) {
+        return database[d3.select(this).attr("id")].originalColor === color;
+      } else {
+        return false;
+      }
+    })
+    .attr("display", function () {
+      if (checked) {
+        return "block";
+      } else {
+        return "none";
+      }
+    });
 }
 
 // Check if points are within path on mouseup
@@ -238,7 +258,7 @@ function drawToolTip(id, width) {
   let svg = d3.select("#containerSVG");
   let toolTipWidth = 340;
   let rectPadding = 1;
-  let hasCategory = database[id].originalColor != "black" ? true : false;
+  let hasCategory = database[id].originalColor !== "black" ? true : false;
 
   // If dot is on right side of screen, flip tooltip
   let leftflip = false;
@@ -409,58 +429,62 @@ function wrap(text, width) {
   return lines;
 }
 
-// Function for removing a tooltip from the DOM on mouseOut
+// Uses the ID of a point to remove the corresponding tooltip on mouseOut
 function eraseToolTip(id) {
-  let className = d3.select("#" + id).attr("class");
+  let POINT_CLASS_NAME = d3.select("#" + id).attr("class");
 
+  // Remove the tooltip
   d3.select("#" + id + "label").remove();
 
-  // Resetting points to appropriate fill, opacity, and radius based on state
+  // Reset points to appropriate fill, opacity, and radius based on state
   d3.select("#" + id)
     .attr("fill", () => {
-      if (className === "brushed") {
-        return "orange";
-      } else if (className === "brushed selected") {
-        return "green";
-      } else {
-        return database[id].originalColor;
+      switch (POINT_CLASS_NAME) {
+        case "brushed":
+          return "orange";
+        case "brushed selected":
+          return "green";
+        default:
+          return database[id].originalColor;
       }
     })
     .attr("opacity", () => {
-      if (className === "brushed") {
-        return globalOpacity;
-      } else if (className === "brushed selected") {
-        return globalOpacity + 0.5;
-      } else {
-        return globalOpacity;
+      switch (POINT_CLASS_NAME) {
+        case "brushed":
+          return globalOpacity;
+        case "brushed selected":
+          return globalOpacity + 0.5;
+        default:
+          return globalOpacity;
       }
     })
     .attr("r", () => {
-      if (className === "brushed") {
-        return globalDotSize;
-      } else if (className === "brushed selected") {
-        return globalDotSize + 2;
-      } else {
-        return globalDotSize;
+      switch (POINT_CLASS_NAME) {
+        case "brushed":
+          return globalDotSize;
+        case "brushed selected":
+          return globalDotSize + 2;
+        default:
+          return globalDotSize;
       }
     });
 }
 
 // Gets centroid of set of points
-function getCentroid(pts) {
-  var first = pts[0],
-    last = pts[pts.length - 1];
-  if (first.x != last.x || first.y != last.y) pts.push(first);
+function getCentroid(points) {
+  var first = points[0],
+    last = points[points.length - 1];
+  if (first.x !== last.x || first.y !== last.y) points.push(first);
   var twicearea = 0,
     x = 0,
     y = 0,
-    nPts = pts.length,
+    nPoints = points.length,
     p1,
     p2,
     f;
-  for (var i = 0, j = nPts - 1; i < nPts; j = i++) {
-    p1 = pts[i];
-    p2 = pts[j];
+  for (var i = 0, j = nPoints - 1; i < nPoints; j = i++) {
+    p1 = points[i];
+    p2 = points[j];
     f = p1.x * p2.y - p2.x * p1.y;
     twicearea += f;
     x += (p1.x + p2.x) * f;
@@ -471,7 +495,7 @@ function getCentroid(pts) {
 }
 
 export {
-  drawGraph,
+  drawProjection,
   checkPoints,
   reset,
   clearSVG,
@@ -481,4 +505,5 @@ export {
   drawToolTip,
   eraseToolTip,
   getCentroid,
+  toggleDotDisplay,
 };

@@ -1,13 +1,14 @@
 import "../App.css";
 import { useState, useEffect } from "react";
 import Table from "react-bootstrap/Table";
+import styled, { keyframes } from "styled-components";
 import {
   highlightLabel,
   getCentroid,
-} from "../d3-rendering/helperFunctions.js";
+} from "../d3-rendering/projectionManipulationFunctions.js";
 import { InfoTooltip } from "./InfoTooltip.js";
-import styled, { keyframes } from "styled-components";
 
+// Loading animation
 const breatheAnimation = keyframes`
  0% { opacity: 0.6; }
  50% { opacity: 1; }
@@ -21,69 +22,85 @@ const PlaceholderImage = styled.img`
 
 // Analysis panel for displaying info
 export const RightPanel = ({
-  plotPoints,
+  selectedPoints,
   pathPoints,
   topWords,
   wordsLoading,
 }) => {
-  // console.log(topWords, plotPoints);
   const [selectedItems, setSelectedItems] = useState([]);
   const associatedWordsExplanation =
     "We run a linear classifier on points in the circled area versus points not in the circled area. We return the top 30 words that are positively and negatively associated with being in the circled area";
 
   // Generates table items if there are selected points
   useEffect(() => {
-    if (plotPoints.length > 0) {
-      let counts = {};
+    if (selectedPoints.length > 0) {
+      let labelDict = {};
 
+      // Calculates centroid of lassoed area
       let centroid = getCentroid(pathPoints);
 
-      for (let point of plotPoints) {
-        if (point.label in counts) {
-          counts[point.label].count++;
-          counts[point.label].id = counts[point.label].id + " " + point.id;
+      for (let point of selectedPoints) {
+        // Creates ids for a table item, if there are multiple of the same label, this allows you to map from the table item to the labels
+        if (point.label in labelDict) {
+          labelDict[point.label].id =
+            labelDict[point.label].id + " " + point.id;
         } else {
-          counts[point.label] = { count: 1, id: point.id };
+          labelDict[point.label] = { id: point.id };
         }
 
-        counts[point.label].distFromCentroid = Math.sqrt(
+        // Calculates distance from the centroid of the lassoed area to the point
+        labelDict[point.label].distFromCentroid = Math.sqrt(
           (point.cx - centroid.x) ** 2 + (point.cy - centroid.y) ** 2
         );
       }
 
-      let countsArray = Object.entries(counts);
-      countsArray.sort(function (a, b) {
+      // Sorts labels by distance from the centroid
+      let labelsArray = Object.entries(labelDict);
+      labelsArray.sort(function (a, b) {
         return a[1].distFromCentroid - b[1].distFromCentroid;
       });
 
       let newSelectedItems = [];
-      for (let [label, countInfo] of countsArray) {
+      for (let [label, countInfo] of labelsArray) {
         // Highlights top words in the label if topwords is populated
         if (topWords.positiveWord !== null) {
           let splitLabel = label.split(" ");
           for (let i = splitLabel.length - 1; i > -1; i--) {
             let lowercaseCopy = splitLabel[i]
               .toLowerCase()
-              .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "");
+              .replace(/[.,/#!$%^&*;:"{}=\-_`~()]/g, "");
 
-            if (lowercaseCopy === topWords.positiveWords[0]) {
-              splitLabel[i] = (
-                <mark className="positive-mark-1">{splitLabel[i]}</mark>
-              );
-            } else if (lowercaseCopy === topWords.positiveWords[1]) {
-              splitLabel[i] = (
-                <mark className="positive-mark-2">{splitLabel[i]}</mark>
-              );
-            } else if (lowercaseCopy === topWords.positiveWords[2]) {
-              splitLabel[i] = (
-                <mark className="positive-mark-3">{splitLabel[i]}</mark>
-              );
-            } else if (lowercaseCopy === topWords.negativeWord) {
-              splitLabel[i] = (
-                <mark className="negative-mark">{splitLabel[i]}</mark>
-              );
-            } else {
-              splitLabel[i] = splitLabel[i];
+            switch (lowercaseCopy) {
+              case topWords.positiveWords[0]:
+                splitLabel[i] = (
+                  <mark key={countInfo.id} className="positive-mark-1">
+                    {splitLabel[i]}
+                  </mark>
+                );
+                break;
+              case topWords.positiveWords[1]:
+                splitLabel[i] = (
+                  <mark key={countInfo.id} className="positive-mark-2">
+                    {splitLabel[i]}
+                  </mark>
+                );
+                break;
+              case topWords.positiveWords[2]:
+                splitLabel[i] = (
+                  <mark key={countInfo.id} className="positive-mark-3">
+                    {splitLabel[i]}
+                  </mark>
+                );
+                break;
+              case topWords.negativeWord:
+                splitLabel[i] = (
+                  <mark key={countInfo.id} className="negative-mark">
+                    {splitLabel[i]}
+                  </mark>
+                );
+                break;
+              default:
+                break;
             }
 
             // Adds space
@@ -108,12 +125,11 @@ export const RightPanel = ({
 
       setSelectedItems(newSelectedItems);
     } // Update selected items if selection is cleared
-    else if (plotPoints.length === 0 && selectedItems.length > 0) {
+    else if (selectedPoints.length === 0 && selectedItems.length > 0) {
       setSelectedItems([]);
     }
-  }, [plotPoints, topWords]);
+  }, [selectedPoints, topWords, pathPoints, selectedItems.length]);
 
-  console.log(wordsLoading);
   return (
     <div className="right panel">
       <div className="title">

@@ -11,7 +11,7 @@ import {
   reset,
   drawToolTip,
   eraseToolTip,
-} from "../d3-rendering/helperFunctions.js";
+} from "../d3-rendering/projectionManipulationFunctions.js";
 import "../App.css";
 import { RightPanel } from "./RightPanel.js";
 import axios from "axios";
@@ -164,7 +164,7 @@ export const MouseDraw = ({ x, y, width, height }) => {
         </g>
       </svg>
       <RightPanel
-        plotPoints={selectedPoints}
+        selectedPoints={selectedPoints}
         pathPoints={currentLine.points}
         topWords={topWords}
         wordsLoading={wordsLoading}

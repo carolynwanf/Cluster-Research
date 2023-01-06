@@ -4,11 +4,12 @@ import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import axios from "axios";
 import {
-  drawGraph,
+  drawProjection,
   clearSVG,
   changeOpacity,
   changeDotSize,
-} from "../d3-rendering/helperFunctions.js";
+  toggleDotDisplay,
+} from "../d3-rendering/projectionManipulationFunctions.js";
 import Slider from "@mui/material/Slider";
 import CircularProgress from "@mui/material/CircularProgress";
 import { InfoTooltip } from "./InfoTooltip.js";
@@ -57,6 +58,24 @@ const ReductionOptions = ({
   }
 };
 
+const KeyItem = ({ props }) => {
+  const [checked, setChecked] = useState(true);
+
+  const handleClick = () => {
+    setChecked(!checked);
+    toggleDotDisplay(!checked, props.color);
+  };
+
+  return (
+    <Form.Check
+      className="key-item"
+      label={props.label}
+      checked={checked}
+      onClick={handleClick}
+    />
+  );
+};
+
 // Data upload + control panel
 export const LeftPanel = ({ width, height }) => {
   const [rawFile, setRawFile] = useState(); // File that hasn't been projected yet
@@ -72,9 +91,35 @@ export const LeftPanel = ({ width, height }) => {
     <option key="select-a-column" value="select-a-column">
       select a column to color dots by
     </option>,
-    ,
   ]); //reset
+  const [colorMap, setColorMap] = useState({});
   const [selectedCol, setSelectedCol] = useState("none");
+
+  function renderKey() {
+    if (colorMap.length > 0) {
+      return (
+        <>
+          <hr />
+          <div className="title">
+            <p>Category Visibility</p>
+          </div>
+          {colorMap.map((info) => {
+            {
+              console.log(info);
+            }
+            return (
+              <KeyItem
+                props={{
+                  label: info[0],
+                  color: info[1],
+                }}
+              />
+            );
+          })}
+        </>
+      );
+    }
+  }
 
   // Help explanations
   const uploadExplanation =
@@ -100,7 +145,8 @@ export const LeftPanel = ({ width, height }) => {
     if (projectedFileData.length > 0) {
       clearSVG();
       setPlottedData(projectedFileData);
-      drawGraph(width, height, projectedFileData);
+      let newColorMap = drawProjection(width, height, projectedFileData);
+      setColorMap(Object.entries(newColorMap));
       setProjectedFileData([]);
     }
   };
@@ -175,7 +221,9 @@ export const LeftPanel = ({ width, height }) => {
           let dataToPlot = response.data.data;
           clearSVG();
           setPlottedData(dataToPlot);
-          drawGraph(width, height, dataToPlot);
+          let newColorMap = drawProjection(width, height, dataToPlot);
+          setColorMap(Object.entries(newColorMap));
+          console.log(Object.entries(newColorMap));
           setLoadingData(false);
         })
         .catch((error) => {
@@ -237,7 +285,8 @@ export const LeftPanel = ({ width, height }) => {
         console.log("SUCCESS", response.data.data);
         let dataToPlot = response.data.data;
         setPlottedData(dataToPlot);
-        drawGraph(width, height, dataToPlot);
+        let newColorMap = drawProjection(width, height, dataToPlot);
+        setColorMap(Object.entries(newColorMap));
       })
       .catch((error) => {
         console.log(error);
@@ -253,14 +302,14 @@ export const LeftPanel = ({ width, height }) => {
       {/* File selection */}
       <Form.Group controlId="formFile" className="mb-3">
         <Form.Control
-          class="form-control"
+          className="form-control"
           size="sm"
           type="file"
           accept=".csv"
           onChange={handleRawFileChange}
         />
         <Form.Select
-          class="form-select"
+          className="form-select"
           size="sm"
           aria-label="column-selection"
           onChange={handleColChange}
@@ -268,7 +317,7 @@ export const LeftPanel = ({ width, height }) => {
           {csvColumns}
         </Form.Select>
         <Form.Select
-          class="form-select"
+          className="form-select"
           size="sm"
           aria-label="column-selection"
           onChange={handleReductionMethodChange}
@@ -314,7 +363,7 @@ export const LeftPanel = ({ width, height }) => {
       </div>
       <Form.Group controlId="previousProjectionFile" className="mb-3">
         <Form.Control
-          class="form-control"
+          className="form-control"
           size="sm"
           type="file"
           accept=".json"
@@ -374,6 +423,7 @@ export const LeftPanel = ({ width, height }) => {
         />
         <p className="paramValue">{dotSize}</p>
       </div>
+      {renderKey()}
     </div>
   );
 };
