@@ -13,6 +13,11 @@ import {
 import Slider from "@mui/material/Slider";
 import CircularProgress from "@mui/material/CircularProgress";
 import { InfoTooltip } from "./InfoTooltip.js";
+import { library } from "@fortawesome/fontawesome-svg-core";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCheckSquare, faSquare } from "@fortawesome/free-solid-svg-icons";
+
+library.add(faCheckSquare, faSquare);
 
 const localDevURL = "http://127.0.0.1:5000/";
 
@@ -58,6 +63,7 @@ const ReductionOptions = ({
   }
 };
 
+// Item in the category key
 const KeyItem = ({ props }) => {
   const [checked, setChecked] = useState(true);
 
@@ -67,12 +73,14 @@ const KeyItem = ({ props }) => {
   };
 
   return (
-    <Form.Check
-      className="key-item"
-      label={props.label}
-      checked={checked}
-      onClick={handleClick}
-    />
+    <div className="key-item" onClick={handleClick} spin>
+      {/* Custom checkbox */}
+      <FontAwesomeIcon
+        icon={checked ? "check-square" : "square"}
+        color={checked ? props.color : "#FAFAFA"}
+      />
+      <p>{props.label}</p>
+    </div>
   );
 };
 
@@ -103,6 +111,7 @@ export const LeftPanel = ({ width, height }) => {
           <div className="title">
             <p>Category Visibility</p>
           </div>
+
           {colorMap.map((info) => {
             {
               console.log(info);

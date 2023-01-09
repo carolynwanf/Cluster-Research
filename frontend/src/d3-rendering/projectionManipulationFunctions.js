@@ -126,7 +126,7 @@ const COLORS = [
   "#8fd7ff",
   "#71f5ac",
   "#ff66ff",
-  "#feff70",
+  "#F2E600",
   "#f7bf6d",
   "#8faa6a",
   "#ff7c78",
@@ -152,11 +152,18 @@ function toggleDotDisplay(checked, color) {
         return false;
       }
     })
-    .attr("display", function () {
+    .attr("visibility", function () {
       if (checked) {
-        return "block";
+        return "visible";
       } else {
-        return "none";
+        return "hidden";
+      }
+    })
+    .attr("opacity", function () {
+      if (checked) {
+        return "1";
+      } else {
+        return "0";
       }
     });
 }
@@ -169,6 +176,10 @@ function checkPoints() {
   let categorizedPoints = [];
   // d3.polygonContains(lassoPolygon, [x, y]);
   for (let [id, idInfo] of Object.entries(database)) {
+    // Ignores point if it's not currently displayed
+    if (d3.select("#" + id).attr("visibility") === "hidden") {
+      continue;
+    }
     const point = svg.createSVGPoint();
 
     point.x = idInfo.cx;

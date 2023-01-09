@@ -176,6 +176,27 @@ select {
   margin-top:0.5em;
 }
 
+.key-item {
+  margin-bottom:0.25em;
+}
+
+.key-item svg {
+  display: inline;
+  margin-right: 0.4em;
+  margin-bottom: -0.15em;
+  border:#939393 0.1em solid;
+  border-radius: 0.1em;
+  padding: 0 0.075em;
+
+  transition: color 0.3s ease-out 0s;
+
+}
+
+.key-item p {
+  display: inline;
+  margin-bottom: 0.2em;
+}
+
 /* Right panel */
 .right {
   position:fixed;
@@ -258,6 +279,11 @@ html, body {margin: 0; height: 100%; overflow: hidden}
 /* Lasso */
 path {
   stroke:blue;
+}
+
+/* Circles */
+circle {
+  transition: visibility 0.2s, opacity 0.2s ease-in;
 }
 
 /* Slider formatting */
