@@ -1,10 +1,15 @@
 import "../App.css";
 import { useState, useEffect } from "react";
 import Table from "react-bootstrap/Table";
+import Form from "react-bootstrap/Form";
+import Button from "react-bootstrap/Button";
 import styled, { keyframes } from "styled-components";
 import {
   highlightLabel,
   getCentroid,
+  findMatchingPoints,
+  clearSelectedMatchingPoints,
+  reset,
 } from "../d3-rendering/projectionManipulationFunctions.js";
 import { InfoTooltip } from "./InfoTooltip.js";
 
@@ -19,6 +24,65 @@ const PlaceholderImage = styled.img`
   animation-duration: 1.5s;
   animation-iteration-count: infinite;
 `;
+
+const LabelSearch = () => {
+  const [substring, setSubstring] = useState("");
+
+  const handleSubstringChange = (e) => {
+    setSubstring(e.target.value);
+  };
+
+  const enterSubmit = (e) => {
+    if (e.key === "Enter") {
+      handleSubmit();
+    }
+  };
+
+  const handleSubmit = () => {
+    clearSelectedMatchingPoints();
+    reset();
+    findMatchingPoints(substring);
+  };
+
+  const handleReset = () => {
+    clearSelectedMatchingPoints();
+    reset();
+  };
+
+  return (
+    <>
+      <Form.Group className="mb-3" controlId="findSubstring">
+        <div className="title">
+          <p>Find labels</p>
+        </div>
+        <Form.Control
+          type="substring"
+          placeholder="enter substring"
+          onChange={handleSubstringChange}
+          onKeyPress={enterSubmit}
+        />
+      </Form.Group>
+      <div className="button-box">
+        <Button
+          size="sm"
+          variant="secondary"
+          type="submit"
+          onClick={handleSubmit}
+        >
+          Find
+        </Button>
+        <Button
+          size="sm"
+          variant="outline-secondary"
+          id="resetButton"
+          onClick={handleReset}
+        >
+          Reset
+        </Button>
+      </div>
+    </>
+  );
+};
 
 // Analysis panel for displaying info
 export const RightPanel = ({
@@ -68,7 +132,7 @@ export const RightPanel = ({
           for (let i = splitLabel.length - 1; i > -1; i--) {
             let lowercaseCopy = splitLabel[i]
               .toLowerCase()
-              .replace(/[.,/#!$%^&*;:"{}=\-_`~()]/g, "");
+              .replace(/[.,/#!$?%^&*;:"{}=\-_`~()]/g, "");
 
             switch (lowercaseCopy) {
               case topWords.positiveWords[0]:
@@ -132,6 +196,8 @@ export const RightPanel = ({
 
   return (
     <div className="right panel">
+      <LabelSearch />
+      <hr />
       <div className="title">
         <p>Associated words</p>
         <InfoTooltip text={associatedWordsExplanation} />
@@ -158,6 +224,7 @@ export const RightPanel = ({
           ) : null}
         </div>
       </div>
+      <hr />
       <div id="unique-items-div">
         <p className="title">
           {selectedItems.length > 0

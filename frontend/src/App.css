@@ -250,6 +250,10 @@ select {
 
 }
 
+#resetButton {
+  margin-left: 1em;
+}
+
 
 
 /* svg#positive-cloud, svg#negative-cloud {

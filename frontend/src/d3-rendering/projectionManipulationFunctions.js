@@ -192,10 +192,17 @@ function checkPoints() {
       // Change class and recolor points accordingly
       let selector = "#" + id;
       d3.selectAll(selector)
-        .attr("class", "brushed")
+        .attr("class", function () {
+          const CURRENT_CLASS = d3.select(this).attr("class");
+          if (CURRENT_CLASS.includes("brushed")) {
+            return CURRENT_CLASS;
+          } else {
+            return "brushed";
+          }
+        })
         .attr("fill", (d, i, elements) => {
           let color = database[id].originalColor;
-          if (d3.select(elements[i]).attr("class") === "brushed") {
+          if (d3.select(elements[i]).attr("class").includes("brushed")) {
             color = "orange";
           }
 
@@ -206,11 +213,21 @@ function checkPoints() {
   return { brushedPoints: brushedPoints, categorizedPoints: categorizedPoints };
 }
 
-// Re-color formerly brushed circles
+// Reset projection to original state
 function reset() {
+  // Remove word clouds
   d3.select("#positive-cloud").remove();
   d3.select("#negative-cloud").remove();
+
+  // Re-color points
   d3.selectAll("circle")
+    .filter(function () {
+      if (d3.select(this).attr("class").includes("matches-substring")) {
+        return false;
+      } else {
+        return true;
+      }
+    })
     .attr("class", "non-brushed")
     .attr("fill", function () {
       let color =
@@ -221,7 +238,12 @@ function reset() {
     })
     .attr("r", globalDotSize)
     .attr("opacity", globalOpacity);
+
+  // Remove point label
   d3.selectAll(".pointLabel").remove();
+
+  // Reset lasso
+  d3.selectAll("#lasso").attr("d", "");
 }
 
 // Make random id strings
@@ -442,7 +464,7 @@ function wrap(text, width) {
 
 // Uses the ID of a point to remove the corresponding tooltip on mouseOut
 function eraseToolTip(id) {
-  let POINT_CLASS_NAME = d3.select("#" + id).attr("class");
+  const POINT_CLASS_NAME = d3.select("#" + id).attr("class");
 
   // Remove the tooltip
   d3.select("#" + id + "label").remove();
@@ -455,6 +477,8 @@ function eraseToolTip(id) {
           return "orange";
         case "brushed selected":
           return "green";
+        case "matches-substring brushed":
+          return "orange";
         default:
           return database[id].originalColor;
       }
@@ -505,6 +529,39 @@ function getCentroid(points) {
   return { x: x / f, y: y / f };
 }
 
+function findMatchingPoints(substring) {
+  substring = substring.toLowerCase();
+  // Changes opacity of dots to look like something's loading
+  // d3.selectAll("circle").attr("opacity", 0.1);
+
+  // TODO: make color black for colored plot
+  // Highlight points whose labels match the substring
+  const COLORFUL = Object.entries(colorMap).length > 0 ? true : false;
+
+  d3.selectAll("circle")
+    .filter(function (d) {
+      if (d[2] !== undefined) {
+        let lowerCaseLabel = d[2].toLowerCase();
+        return lowerCaseLabel.includes(substring);
+      } else {
+        return false;
+      }
+    })
+    .attr("fill", function (d) {
+      if (COLORFUL) {
+        return "black";
+      } else {
+        return "orange";
+      }
+    })
+    .attr("class", "matches-substring brushed")
+    .attr("opacity", globalOpacity);
+}
+
+function clearSelectedMatchingPoints() {
+  d3.selectAll(".matches-substring").attr("class", "brushed");
+}
+
 export {
   drawProjection,
   checkPoints,
@@ -517,4 +574,6 @@ export {
   eraseToolTip,
   getCentroid,
   toggleDotDisplay,
+  findMatchingPoints,
+  clearSelectedMatchingPoints,
 };
