@@ -203,7 +203,11 @@ function checkPoints() {
         .attr("fill", (d, i, elements) => {
           let color = database[id].originalColor;
           if (d3.select(elements[i]).attr("class").includes("brushed")) {
-            color = "orange";
+            if (Object.entries(colorMap).length > 0) {
+              color = "black";
+            } else {
+              color = "orange";
+            }
           }
 
           return color;
