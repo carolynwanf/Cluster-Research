@@ -174,6 +174,7 @@ function checkPoints() {
   let svg = document.getElementsByTagName("svg")[0];
   let brushedPoints = [];
   let categorizedPoints = [];
+  let selectedLabels = [];
   // d3.polygonContains(lassoPolygon, [x, y]);
   for (let [id, idInfo] of Object.entries(database)) {
     // Ignores point if it's not currently displayed
@@ -189,6 +190,7 @@ function checkPoints() {
       idInfo.id = id;
       brushedPoints.push(idInfo);
       categorizedPoints.push([idInfo.label, 1]);
+      selectedLabels.push(idInfo.label);
       // Change class and recolor points accordingly
       let selector = "#" + id;
       d3.selectAll(selector)
@@ -214,7 +216,11 @@ function checkPoints() {
         });
     } else categorizedPoints.push([idInfo.label, 0]);
   }
-  return { brushedPoints: brushedPoints, categorizedPoints: categorizedPoints };
+  return {
+    brushedPoints: brushedPoints,
+    categorizedPoints: categorizedPoints,
+    selectedLabels: selectedLabels,
+  };
 }
 
 // Reset projection to original state

@@ -16,6 +16,7 @@ import "../App.css";
 import { RightPanel } from "./RightPanel.js";
 import axios from "axios";
 import { drawClouds } from "../d3-rendering/cloudFunctions.js";
+import { json } from "d3";
 
 const localDevURL = "http://127.0.0.1:5000/";
 
@@ -61,6 +62,9 @@ export const MouseDraw = ({ x, y, width, height }) => {
     negativeWord: null,
   });
   const [wordsLoading, setWordsLoading] = useState(false);
+  const [prompt, setPrompt] = useState(
+    "What is the common theme between the selected sentences?"
+  );
 
   const drawingAreaRef = useRef();
 
@@ -91,7 +95,7 @@ export const MouseDraw = ({ x, y, width, height }) => {
   function disableDrawing() {
     setDrawing(false);
     // Check if points are in path on mouseup
-    let { brushedPoints, categorizedPoints } = checkPoints();
+    let { brushedPoints, categorizedPoints, selectedLabels } = checkPoints();
 
     // Send brushed points to right panel
     setSelectedPoints(brushedPoints);
@@ -102,6 +106,7 @@ export const MouseDraw = ({ x, y, width, height }) => {
       axios
         .post(localDevURL + "categorize-data", {
           data: JSON.stringify(categorizedPoints),
+          selectedLabels: JSON.stringify([prompt, ...selectedLabels]),
         })
         .then((response) => {
           console.log("Categorized!", response.data.data);

@@ -70,8 +70,12 @@ def categorize():
 
     parser = reqparse.RequestParser()
     parser.add_argument('data', type=str)
+    parser.add_argument('selectedLabels', type=str)
     args = parser.parse_args()
     categorizedPoints = args['data']
+    selected_labels = args['selectedLabels']
+
+    print(selected_labels)
 
     df = pd.DataFrame(literal_eval(categorizedPoints), columns = ['0','1'])
 
