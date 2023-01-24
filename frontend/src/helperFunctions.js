@@ -420,12 +420,24 @@ function eraseToolTip(id) {
   // Resetting points to appropriate fill, opacity, and radius based on state
   d3.select("#" + id)
     .attr("fill", () => {
+<<<<<<< Updated upstream:frontend/src/helperFunctions.js
       if (className === "brushed") {
         return "orange";
       } else if (className === "brushed selected") {
         return "green";
       } else {
         return database[id].originalColor;
+=======
+      switch (POINT_CLASS_NAME) {
+        case "brushed":
+          return "orange";
+        case "brushed selected":
+          return "green";
+        case "matches-substring brushed":
+          return "salmon";
+        default:
+          return database[id].originalColor;
+>>>>>>> Stashed changes:frontend/src/d3-rendering/projectionManipulationFunctions.js
       }
     })
     .attr("opacity", () => {
@@ -472,6 +484,42 @@ function getCentroid(pts) {
   return { x: x / f, y: y / f };
 }
 
+<<<<<<< Updated upstream:frontend/src/helperFunctions.js
+=======
+function findMatchingPoints(substring) {
+  substring = substring.toLowerCase();
+  // Changes opacity of dots to look like something's loading
+  // d3.selectAll("circle").attr("opacity", 0.1);
+
+  // TODO: make color black for colored plot
+  // Highlight points whose labels match the substring
+  const COLORFUL = Object.entries(colorMap).length > 0 ? true : false;
+
+  d3.selectAll("circle")
+    .filter(function (d) {
+      if (d[2] !== undefined) {
+        let lowerCaseLabel = d[2].toLowerCase();
+        return lowerCaseLabel.includes(substring);
+      } else {
+        return false;
+      }
+    })
+    .attr("fill", function (d) {
+      if (COLORFUL) {
+        return "black";
+      } else {
+        return "salmon";
+      }
+    })
+    .attr("class", "matches-substring brushed")
+    .attr("opacity", globalOpacity);
+}
+
+function clearSelectedMatchingPoints() {
+  d3.selectAll(".matches-substring").attr("class", "brushed");
+}
+
+>>>>>>> Stashed changes:frontend/src/d3-rendering/projectionManipulationFunctions.js
 export {
   drawGraph,
   checkPoints,

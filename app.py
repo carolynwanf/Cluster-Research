@@ -14,6 +14,14 @@ from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.svm import SVC
 import numpy as np
 import heapq
+import json
+import banana_dev as banana
+
+import os
+import openai
+
+openai.api_key = "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"
+
 
 app = Flask(__name__, static_url_path='', static_folder='frontend/build')
 CORS(app)
@@ -72,6 +80,28 @@ def categorize():
     parser.add_argument('data', type=str)
     args = parser.parse_args()
     categorizedPoints = args['data']
+    selected_labels = args['selectedLabels']
+
+    #print(json.loads(selected_labels))
+    #print(selected_labels)
+    '''api_key="a617c2f3-2155-4688-9b39-19ebe89475f9"
+    model_key="gptj"
+    model_inputs = { "text": selected_labels, "length": 50, "temperature": 0.9, "topK": 50, "topP": 0.9}'''
+    gpt_prompt = selected_labels
+    #out = banana.run(api_key, model_key, model_inputs)
+    #print(out['modelOutputs'][0]['output'])
+    response = openai.Completion.create(
+    engine="text-davinci-002",
+    prompt=gpt_prompt,
+    temperature=0.5,
+    max_tokens=256,
+    top_p=1.0,
+    frequency_penalty=0.0,
+    presence_penalty=0.0
+    )
+
+
+    print(response['choices'][0]['text'])
 
     df = pd.DataFrame(literal_eval(categorizedPoints), columns = ['0','1'])
 
@@ -105,9 +135,9 @@ def categorize():
                             columns = ['pos_tokens', 'pos_coefs','neg_tokens','neg_coefs'])
 
 
-    print(df_coefs)
+    #print(df_coefs)
 
-    return df_coefs.to_json(orient="split")
+    return df_coefs.to_json(orient="split"), response['choices'][0]['text']
 
 
 

@@ -60,6 +60,10 @@ export const MouseDraw = ({ x, y, width, height }) => {
     positiveWord: null,
     negativeWord: null,
   });
+  const [wordsLoading, setWordsLoading] = useState(false);
+  const [prompt, setPrompt] = useState(
+    "What is the common between these sentences?"
+  );
 
   const drawingAreaRef = useRef();
 
@@ -102,7 +106,7 @@ export const MouseDraw = ({ x, y, width, height }) => {
           data: JSON.stringify(categorizedPoints),
         })
         .then((response) => {
-          console.log("Categorized!", response.data.data);
+          console.log("Categorized!", response.statusText);
           let newTopWords = drawClouds(response.data.data);
           setTopWords(newTopWords);
           // TODO: do things with response
