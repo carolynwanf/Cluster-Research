@@ -13,6 +13,12 @@ from sklearn.svm import SVC
 import numpy as np
 import heapq
 
+import openai
+
+openai.api_key = "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"
+
+    
+
 app = Flask(__name__, static_url_path='', static_folder='frontend/build')
 CORS(app)
 
@@ -76,6 +82,19 @@ def categorize():
     selected_labels = args['selectedLabels']
 
     print(selected_labels)
+    gpt_prompt = selected_labels
+    response = openai.Completion.create(
+    engine="text-davinci-002",
+    prompt=gpt_prompt,
+    temperature=0.5,
+    max_tokens=256,
+    top_p=1.0,
+    frequency_penalty=0.0,
+    presence_penalty=0.0
+    )
+
+
+    print(response['choices'][0]['text'])
 
     df = pd.DataFrame(literal_eval(categorizedPoints), columns = ['0','1'])
 
@@ -111,7 +130,7 @@ def categorize():
 
     print(df_coefs)
 
-    return df_coefs.to_json(orient="split")
+    return df_coefs.to_json(orient="split"), response['choices'][0]['text']
 
 
 

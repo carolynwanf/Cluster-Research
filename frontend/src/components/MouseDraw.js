@@ -109,7 +109,7 @@ export const MouseDraw = ({ x, y, width, height }) => {
           selectedLabels: JSON.stringify([prompt, ...selectedLabels]),
         })
         .then((response) => {
-          console.log("Categorized!", response.data.data);
+          console.log("Categorized!", response.statusText);
           let newTopWords = drawClouds(response.data.data);
           setWordsLoading(false);
           setTopWords(newTopWords);
