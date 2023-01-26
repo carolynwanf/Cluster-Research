@@ -15,7 +15,7 @@ import heapq
 
 import openai
 
-openai.api_key = "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"
+openai.api_key = "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"
 
     
 
