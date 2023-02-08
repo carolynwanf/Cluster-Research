@@ -67,15 +67,11 @@ def data():
 #   ]
 @app.route("/categorize-data", methods=["POST"])
 def categorize():
-
     parser = reqparse.RequestParser()
     parser.add_argument('data', type=str)
-    parser.add_argument('selectedLabels', type=str)
     args = parser.parse_args()
     categorizedPoints = args['data']
-    selected_labels = args['selectedLabels']
 
-    print(selected_labels)
 
     df = pd.DataFrame(literal_eval(categorizedPoints), columns = ['0','1'])
 
@@ -112,6 +108,17 @@ def categorize():
     print(df_coefs)
 
     return df_coefs.to_json(orient="split")
+
+# GPT-3-powered explanations
+@app.route("/GPT-explanation", methods=["POST"])
+def GPTexplanation():
+    parser = reqparse.RequestParser()
+    parser.add_argument('selectedLabels', type=str)
+    args = parser.parse_args()
+    selected_labels = args['selectedLabels']
+
+    return "nothing yet"
+
 
 
 
