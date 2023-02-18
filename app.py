@@ -15,7 +15,7 @@ import heapq
 
 import openai
 
-openai.api_key = "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"
+openai.api_key = "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"
 
     
 
@@ -81,8 +81,8 @@ def categorize():
     categorizedPoints = args['data']
     selected_labels = args['selectedLabels']
 
-    print(selected_labels)
-    gpt_prompt = selected_labels
+    #print(selected_labels)
+    '''gpt_prompt = selected_labels[2:3800]
     response = openai.Completion.create(
     engine="text-davinci-002",
     prompt=gpt_prompt,
@@ -94,7 +94,7 @@ def categorize():
     )
 
 
-    print(response['choices'][0]['text'])
+    print(response['choices'][0]['text'])'''
 
     df = pd.DataFrame(literal_eval(categorizedPoints), columns = ['0','1'])
 
@@ -130,7 +130,7 @@ def categorize():
 
     print(df_coefs)
 
-    return df_coefs.to_json(orient="split"), response['choices'][0]['text']
+    return df_coefs.to_json(orient="split"), "Hey"#response['choices'][0]['text']
 
 
 
