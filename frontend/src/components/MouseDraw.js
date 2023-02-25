@@ -16,6 +16,9 @@ import "../App.css";
 import { RightPanel } from "./RightPanel.js";
 import axios from "axios";
 import { drawClouds } from "../d3-rendering/cloudFunctions.js";
+import { drawHistograms } from "../d3-rendering/histograms.js";
+//import Hist from "../d3-rendering/histograms.js";
+
 
 const localDevURL = "http://127.0.0.1:5000/";
 const DEFAULT_PROMPT =
@@ -106,31 +109,23 @@ export const MouseDraw = ({ x, y, width, height }) => {
     if (brushedPoints.length > 0) {
       // Send categorized points to back for linear classification
       setWordsLoading(true);
-      axios
+      drawHistograms(categorizedPoints)
+    
+      /*axios
         .post(localDevURL + "categorize-data", {
           data: JSON.stringify(categorizedPoints),
         })
         .then((response) => {
           console.log("Categorized!", response.data.data);
-          let newTopWords = drawClouds(response.data.data);
+
+          
           setWordsLoading(false);
-          setTopWords(newTopWords);
           // TODO: do things with response
         })
         .catch((error) => {
           console.log(error);
-        });
-      axios
-        .post(localDevURL + "GPT-explanation", {
-          apiKey: keyVal,
-          selectedLabels: JSON.stringify([prompt, ...selectedLabels]),
-        })
-        .then((response) => {
-          setExplanation("Explanation: yet to set up");
-        })
-        .catch((error) => {
-          console.log(error);
-        });
+        });*/
+      
     }
   }
 
@@ -153,26 +148,7 @@ export const MouseDraw = ({ x, y, width, height }) => {
     return () => area.on("mousemove", null);
   }, [mouseMove]);
 
-  // request new explanation when prompt changes
-  useEffect(() => {
-    console.log("KEY:", keyVal);
-    console.log("changedPrompt:", prompt);
-    let { brushedPoints, categorizedPoints, selectedLabels } = checkPoints();
-    if (brushedPoints.length > 0) {
-      axios
-        .post(localDevURL + "GPT-explanation", {
-          apiKey: keyVal,
-          selectedLabels: JSON.stringify([prompt, ...selectedLabels]),
-        })
-        .then((response) => {
-          console.log("TODO: implement GPT-explanation");
-          setExplanation("Explanation: not set up yet");
-        })
-        .catch((error) => {
-          console.log(error);
-        });
-    }
-  }, [prompt]);
+
 
   return (
     <div className="body">

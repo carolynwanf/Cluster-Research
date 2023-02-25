@@ -67,8 +67,10 @@ function drawProjection(width, height, uploadedData) {
   for (let row of data) {
     row.push(makeid(10));
   }
-
+  console.log(data)
   // Draw circles
+
+
   svg
     .append("g")
     .selectAll("circle")
@@ -79,7 +81,7 @@ function drawProjection(width, height, uploadedData) {
     .attr("opacity", globalOpacity)
     .attr("id", (d) => {
       let id = d[d.length - 1];
-      database[id] = { label: d[2] };
+      database[id] = { label: d[2], val: d.slice(4,-1)};
       return id;
     })
     .attr("cx", (d) => {
@@ -104,6 +106,7 @@ function drawProjection(width, height, uploadedData) {
 
   svg.append("g");
   return colorMap;
+  
 }
 
 function makeColorMap(data) {
@@ -189,7 +192,7 @@ function checkPoints() {
     if (path.isPointInFill(point)) {
       idInfo.id = id;
       brushedPoints.push(idInfo);
-      categorizedPoints.push([idInfo.label, 1]);
+      categorizedPoints.push([idInfo.label,  idInfo.val, 1]);
       selectedLabels.push(idInfo.label);
       // Change class and recolor points accordingly
       let selector = "#" + id;
@@ -214,7 +217,10 @@ function checkPoints() {
 
           return color;
         });
-    } else categorizedPoints.push([idInfo.label, 0]);
+    } else {
+      categorizedPoints.push([idInfo.label, idInfo.val, 0]);
+    }
+
   }
   return {
     brushedPoints: brushedPoints,
@@ -225,9 +231,6 @@ function checkPoints() {
 
 // Reset projection to original state
 function reset() {
-  // Remove word clouds
-  d3.select("#positive-cloud").remove();
-  d3.select("#negative-cloud").remove();
 
   // Re-color points
   d3.selectAll("circle")

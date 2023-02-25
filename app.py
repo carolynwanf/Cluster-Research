@@ -38,26 +38,30 @@ def data():
 
     #df has text as metadata and other features
     df = pd.read_csv(io.StringIO(data),sep=",", header=0)
+    
 
     # extracting column with color information from df
     if selectedCol != "none":
+        selectedCol = selectedCol[1:-1]
         colorByCol = df.loc[:,selectedCol]
         df = df.drop(selectedCol, axis=1)
-
     # Check reduction method
     if reductionMethod == "TSNE":
         perplexity = args['perplexity']
         #This performs dimensionality reduction, for now fixed perplexity but could be changed later
-        X_embedded = TSNE(n_components=2, perplexity=perplexity, verbose=True).fit_transform(df.drop(columns = ['text']).values)
+        X_embedded = TSNE(n_components=2, perplexity=perplexity, verbose=True).fit_transform(df.values)
     else:
-         X_embedded = umap.UMAP(n_components=2).fit_transform(df.drop(columns = 'text').values)
+         X_embedded = umap.UMAP(n_components=2).fit_transform(df.values)
 
     #Converting the x,y,labels,color into dataframe again
     df_dr = pd.DataFrame(X_embedded,columns=['x', 'y'])
-    df_dr['label'] = df['text']
+    df_dr['label'] = colorByCol
+
     if selectedCol != "none":
         df_dr['color'] = colorByCol
 
+    df.to_csv('data.csv', index = False)
+    df_dr = pd.concat([df_dr, df], axis=1, join="inner")
     return df_dr.to_json(orient="split")
 
 # Returns most 30 most positively and negatively associated words with being in a selected area using a linear classifier
@@ -67,47 +71,18 @@ def data():
 #   ]
 @app.route("/categorize-data", methods=["POST"])
 def categorize():
+    print("hello")
     parser = reqparse.RequestParser()
     parser.add_argument('data', type=str)
     args = parser.parse_args()
     categorizedPoints = args['data']
-
-
-    df = pd.DataFrame(literal_eval(categorizedPoints), columns = ['0','1'])
-
-    #Make a list of all possible words in the text, currently capped at 100,000
-    vectorizer = CountVectorizer(max_features=100000,token_pattern=r"(?u)\b\w\w+\b|!|\?|\"|\'")
-    BOW = vectorizer.fit_transform(df['0'])
-
-    #Fit a linear Classifier
-    x_train,x_test,y_train,y_test = train_test_split(BOW,np.asarray(df['1']))
-    model = SVC(kernel='linear')
-    model.fit(x_train,y_train)
-    coeffs = model.coef_.toarray()
-
-    #Find ids for pos and negative coeffs
-    id_pos = coeffs[0]>0
-    id_neg = coeffs[0]<0
-
-    #We're just taking 30 largest values
-    n_pos = heapq.nlargest(30, range(len(coeffs[0][id_pos])), coeffs[0][id_pos].take)
-    n_neg = heapq.nsmallest(30, range(len(coeffs[0][id_neg])), coeffs[0][id_neg].take)
-
-
-    pos_tokens = vectorizer.get_feature_names_out()[id_pos][n_pos]
-    pos_token_coeffs = coeffs[0][id_pos][n_pos]
-
-
-    neg_tokens = vectorizer.get_feature_names_out()[id_neg][n_neg]
-    neg_token_coeffs = coeffs[0][id_neg][n_neg]
-
-    df_coefs = pd.DataFrame(list(zip(pos_tokens,pos_token_coeffs,neg_tokens,neg_token_coeffs)),
-                            columns = ['pos_tokens', 'pos_coefs','neg_tokens','neg_coefs'])
-
-
-    print(df_coefs)
-
-    return df_coefs.to_json(orient="split")
+    print(categorizedPoints)
+    df_data = pd.read_csv('data.csv')
+    df = pd.DataFrame(literal_eval(categorizedPoints), columns = ['0', 'val', '1'])
+    df_data['target'] = df['1']
+    print(df_data)
+    print(df)
+    return 
 
 # GPT-3-powered explanations
 @app.route("/GPT-explanation", methods=["POST"])

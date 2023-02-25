@@ -13,8 +13,6 @@ import {
 } from "../d3-rendering/projectionManipulationFunctions.js";
 import { InfoTooltip } from "./InfoTooltip.js";
 
-const DEFAULT_PROMPT =
-  "What is the common theme between the selected sentences?";
 
 // Loading animation
 const breatheAnimation = keyframes`
@@ -28,65 +26,6 @@ const PlaceholderImage = styled.img`
   animation-iteration-count: infinite;
 `;
 
-const LabelSearch = () => {
-  const [substring, setSubstring] = useState("");
-
-  const handleSubstringChange = (e) => {
-    setSubstring(e.target.value);
-  };
-
-  const enterSubmit = (e) => {
-    if (e.key === "Enter") {
-      handleSubmit();
-    }
-  };
-
-  const handleSubmit = () => {
-    clearSelectedMatchingPoints();
-    reset();
-    findMatchingPoints(substring);
-  };
-
-  const handleReset = () => {
-    clearSelectedMatchingPoints();
-    reset();
-  };
-
-  return (
-    <>
-      <Form.Group className="mb-3" controlId="findSubstring">
-        <div className="title">
-          <p>find labels</p>
-        </div>
-        <div className="button-box">
-          <Form.Control
-            type="substring"
-            size="sm"
-            placeholder="enter substring"
-            onChange={handleSubstringChange}
-            onKeyPress={enterSubmit}
-          />
-          <Button
-            size="sm"
-            variant="secondary"
-            type="submit"
-            onClick={handleSubmit}
-          >
-            find
-          </Button>
-          <Button
-            size="sm"
-            variant="outline-secondary"
-            className="resetButton"
-            onClick={handleReset}
-          >
-            reset
-          </Button>
-        </div>
-      </Form.Group>
-    </>
-  );
-};
 
 // Analysis panel for displaying info
 export const RightPanel = ({
@@ -204,101 +143,16 @@ export const RightPanel = ({
     }
   }, [selectedPoints, topWords, pathPoints, selectedItems.length]);
 
-  const handleNewPrompt = (e) => {
-    if (promptValue !== "") {
-      setPrompt(promptValue);
-    }
-
-    console.log(promptValue);
-
-    document.querySelector("#promptTextArea").value = "";
-  };
-
-  const handleChangePrompt = (e) => {
-    setPromptValue(e.target.value);
-  };
-
-  const handleChangeKey = (e) => {
-    console.log("setting key value:", e.target.value);
-    setKeyVal(e.target.value);
-  };
-
-  const handleReset = () => {
-    setPrompt(DEFAULT_PROMPT);
-    document.querySelector("#promptTextArea").value = "";
-  };
-
-  console.log("keyval", keyVal);
 
   return (
     <div className="right panel">
-      <LabelSearch />
       <hr />
-      <div id="natural-language-explanation">
-        <p className="title">GPT-3-Powered Explanation</p>
-        <Form.Group>
-          <Form.Control
-            className="form-control"
-            size="sm"
-            placeholder={keyVal === "" ? "OpenAI Key" : keyVal}
-            onChange={handleChangeKey}
-          ></Form.Control>
-          <Form.Control
-            className="form-control"
-            id="promptTextArea"
-            size="sm"
-            as="textarea"
-            rows={3}
-            placeholder={"current prompt: " + prompt}
-            onChange={handleChangePrompt}
-          ></Form.Control>
-          <div className="button-box">
-            <Button
-              size="sm"
-              variant="secondary"
-              type="submit"
-              onClick={handleNewPrompt}
-            >
-              change prompt
-            </Button>
-            <Button
-              size="sm"
-              variant="outline-secondary"
-              className="resetButton"
-              onClick={handleReset}
-            >
-              reset
-            </Button>
-          </div>
-        </Form.Group>
-        <p id="explanation">{explanation}</p>
-      </div>
-      <hr />
-
       <div className="title">
-        <p>Associated words</p>
+        <p>summary Statistics</p>
         <InfoTooltip text={associatedWordsExplanation} />
       </div>
       <div id="cloud-div">
         <div id="positive-cloud-div">
-          <p>Inside</p>
-          {wordsLoading ? (
-            <PlaceholderImage
-              src="https://storage.googleapis.com/htw-website-uploads/Grey-placeholder-image2.jpg"
-              className="placeholder-image"
-              id="pos-placeholder"
-            />
-          ) : null}
-        </div>
-        <div id="negative-cloud-div">
-          <p>Outside</p>
-          {wordsLoading ? (
-            <PlaceholderImage
-              src="https://storage.googleapis.com/htw-website-uploads/Grey-placeholder-image2.jpg"
-              className="placeholder-image"
-              id="neg-placeholder"
-            />
-          ) : null}
         </div>
       </div>
       <hr />
@@ -309,17 +163,6 @@ export const RightPanel = ({
             : 0}{" "}
           items
         </p>
-      </div>
-      <div className="tableDiv">
-        <Table bordered>
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>item</th>
-            </tr>
-          </thead>
-          <tbody>{selectedItems}</tbody>
-        </Table>
       </div>
       <div className="footerSpacing"></div>
     </div>
