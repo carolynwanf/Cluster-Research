@@ -123,17 +123,22 @@ function makeColorMap(data) {
 }
 
 const COLORS = [
-  "#8fd7ff",
-  "#71f5ac",
-  "#ff66ff",
-  "#F2E600",
-  "#f7bf6d",
-  "#8faa6a",
-  "#ff7c78",
-  "#e14e3d",
-  "#ac8f4c",
-  "#003CFF",
-  "#9500F2",
+  "#e41a1c",
+  "#377eb8",
+  "#4daf4a",
+  "#984ea3",
+  "#ff7f00",
+  "#ffff33",
+  "#8dd3c7",
+  "#ffffb3",
+  "#bebada",
+  "#fb8072",
+  "#80b1d3",
+  "#fdb462",
+  "#b3de69",
+  "#fccde5",
+  "#d9d9d9",
+  "#bc80bd",
 ];
 
 function assignColor(category, id) {
