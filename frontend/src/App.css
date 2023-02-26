@@ -145,6 +145,7 @@ body {
   width: 320px;
   height: 100vh;
   padding: 1em;
+  overflow: scroll
 }
 
 .button-box {

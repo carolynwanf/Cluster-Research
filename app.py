@@ -72,7 +72,7 @@ def categorize():
     args = parser.parse_args()
     categorizedPoints = args['data']
 
-
+    print(literal_eval(categorizedPoints))
     df = pd.DataFrame(literal_eval(categorizedPoints), columns = ['0','1'])
 
     #Make a list of all possible words in the text, currently capped at 100,000
